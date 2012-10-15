@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -30,6 +31,14 @@ public:
   uint32_t Size() const {
     return wfl_.size();
   }
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << Size() << ":";
+    for (uint32_t i = 0; i < Size(); ++i) {
+      ss << " " << wfl_[i].first << "/" << wfl_[i].second;
+    }
+    return ss.str();
+  }
 private:
   typedef std::pair<uint32_t, uint32_t> WordFreq;
   typedef std::vector<WordFreq> WordFreqList;
@@ -47,16 +56,27 @@ public:
   const Document& Doc(uint32_t idx) const {
     return docs_[idx];
   }
-  uint32_t Size() const {
+  uint32_t DocSize() const {
     return docs_.size();
   }
-  uint32_t DicSize() const {
+  uint32_t DictSize() const {
     return word2idx_.size();
   }
   std::string StatString() const {
     std::stringstream ss;
-    ss << "Size=" << Size() << ", DicSize=" << DicSize();
+    ss << "DocSize=" << DocSize() << ", DicSize=" << DictSize();
     return ss.str();
+  }
+  bool SaveDict(const std::string& fname) {
+    std::ofstream outf(fname.c_str());
+    if (!outf) {
+      return false;
+    }
+    for (Word2Idx::const_iterator it = word2idx_.begin(); it != word2idx_.end(); ++it) {
+      outf << it->first << "\t" << it->second << "\n";
+    }
+    outf.close();
+    return true;
   }
 private:
   typedef std::map<std::string, uint32_t> Word2Idx;

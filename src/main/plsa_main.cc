@@ -12,12 +12,12 @@
 #include <toyml/topic/dataset.h>
 
 DECLARE_int32(stderrthreshold);
-DECLARE_string(log_dir);
+//DECLARE_string(log_dir);
 
-DEFINE_string(fname, "../data/topic/trndocs.dat", "input file of documents");
+DEFINE_string(docpath, "../data/topic/testdocs.dat", "input file of documents");
+DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
 
 int main(int argc, char **argv) {
-//  std::cout << "------" << argv[0] << "------" << std::endl;
   FLAGS_stderrthreshold = 0;
 //  FLAGS_log_dir = "../log/";
   google::ParseCommandLineFlags(&argc, &argv, true);
@@ -26,8 +26,10 @@ int main(int argc, char **argv) {
   VLOG(0) << "------" << argv[0] << "------";
 
   toyml::Dataset dataset;
-  CHECK(dataset.Load(FLAGS_fname)) << "Failed to load file " << FLAGS_fname;
-  VLOG(0) << dataset.StatString();
+  CHECK(dataset.Load(FLAGS_docpath)) << "Failed to load file " << FLAGS_docpath;
+  CHECK(dataset.SaveDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
+  VLOG(0) << "dataset.StatString: " << dataset.StatString();
+  VLOG(0) << "dataset.Doc(0): " << dataset.Doc(0).ToString();
 
   return 0;
 }

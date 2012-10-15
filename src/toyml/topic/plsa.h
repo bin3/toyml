@@ -17,6 +17,8 @@ class PLSA {
 public:
   PLSA();
   virtual ~PLSA();
+private:
+
 };
 
 } /* namespace toyml */
