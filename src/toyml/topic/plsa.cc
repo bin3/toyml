@@ -18,4 +18,10 @@ PLSA::~PLSA() {
   // TODO Auto-generated destructor stub
 }
 
+void PLSA::Mstep() {
+}
+
+void PLSA::Estep() {
+}
+
 } /* namespace toyml */

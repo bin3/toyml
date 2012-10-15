@@ -56,7 +56,7 @@ public:
   const Document& Doc(uint32_t idx) const {
     return docs_[idx];
   }
-  uint32_t DocSize() const {
+  std::size_t DocSize() const {
     return docs_.size();
   }
   uint32_t DictSize() const {
