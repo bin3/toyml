@@ -48,6 +48,23 @@ public:
       return T();
     }
   }
+  T& operator()(uint32_t d, uint32_t w, uint32_t z) {
+    uint32_t* pidx = dw_idx_.find_element(d, w);
+    uint32_t idx = 0;
+    if (pidx) {
+      idx = *pidx;
+    } else {
+      idx = zvec_.size();
+      dw_idx_(d, w) = idx;
+      zvec_.push_back(std::vector<T>(nz_));
+    }
+    return zvec_[idx][z];
+  }
+  const T& operator()(uint32_t d, uint32_t w, uint32_t z) const {
+    uint32_t* pidx = dw_idx_.find_element(d, w);
+    CHECK(pidx) << "pidx is NULL. d=" << d << ", w=" << w << ", z=" << z;
+    return zvec_[*pidx][z];
+  }
 private:
   std::size_t nd_; // number of documents
   std::size_t nw_; // size of vocabulary
@@ -57,46 +74,56 @@ private:
   std::vector<std::vector<T> > zvec_;
 };
 
+#define NAME_VAL(v) #v << "=" << v
+
+/**
+ * @brief pLSA model options
+ */
+struct PLSAOptions {
+  std::size_t niters;
+  std::size_t ntopics;  // number of topics
+  double eps;
+  int log_interval;
+  int save_interval;
+  std::size_t topn;
+  std::string datadir;
+  std::string topic_path;
+  std::string tpath;
+  std::string dzpath;
+  std::string wzpath;
+  std::string seperator;
+  PLSAOptions(): niters(100), ntopics(100), eps(1e-5), log_interval(10), save_interval(10), topn(10),
+      datadir("./"), topic_path("topic_words.dat"), tpath("topic.dat"), dzpath("doc-topic.dat"), wzpath("word-topic.dat"),
+      seperator("\t") {}
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << NAME_VAL(niters) << ", ";
+    ss << NAME_VAL(ntopics) << ", ";
+    ss << NAME_VAL(eps) << ", ";
+    ss << NAME_VAL(log_interval) << ", ";
+    ss << NAME_VAL(save_interval) << ", ";
+    ss << NAME_VAL(topn) << ", ";
+    ss << NAME_VAL(datadir);
+    return ss.str();
+  }
+};
+
 /**
  * @brief pLSA model
  */
 class PLSA {
 public:
-  PLSA();
   virtual ~PLSA();
-  bool Init(const Dataset& dataset, std::size_t ntopics, std::size_t niterators) {
-    dataset_ = &dataset;
-    niters_ = niterators;
-
-    nd_ = dataset.DocSize();
-    nw_ = dataset.DictSize();
-    nz_ = ntopics;
-    nr_ = TotalWordOccurs(dataset);
-
-    p_z_.resize(nz_);
-    p_d_z_.resize(nd_, nz_);
-    p_w_z_.resize(nw_, nz_);
-    p_z_dw_.Resize(nd_, nw_, nz_);
-
-    return true;
-  }
-  bool Train() {
-    InitProb();
-    for (std::size_t t = 0; t < niters_; ++t) {
-      Mstep();
-      Estep();
-    }
-    return true;
-  }
-  bool SaveTopics(const std::string& path) {
-    return true;
-  }
-  bool SaveModel(const std::string& path) {
-    return true;
-  }
+  bool Init(const PLSAOptions& options, const Dataset& dataset);
+  bool Train();
+  bool SaveModel(int no = -1) const;
+  bool SaveTopics(const std::string& path) const;
+  bool SaveTModel(const std::string& path) const;
+  bool SaveDZModel(const std::string& path) const;
+  bool SaveWZModel(const std::string& path) const;
 private:
+  PLSAOptions op_;
   const Dataset* dataset_;
-  std::size_t niters_;
 
   std::size_t nd_;  // number of documents
   std::size_t nw_;  // size of vocabulary
@@ -108,24 +135,12 @@ private:
   matrix<double> p_w_z_;        // p(w|z)
   ZDWMatrix<double> p_z_dw_;    // p(z|d,w)
 
-  std::size_t TotalWordOccurs(const Dataset& dataset) {
-    std::size_t cnt = 0;
-    for (uint32_t d = 0; d < dataset.DocSize(); ++d) {
-      const Document& doc = dataset.Doc(d);
-      for (uint32_t p = 0; p < doc.Size(); ++p) {
-        cnt += doc.Freq(p);
-      }
-    }
-    return cnt;
-  }
-  void InitProb() {
-
-  }
+  double LogLikelihood();
+  void InitProb();
   void Mstep();
   void Estep();
-  double LogLikelihood() {
-    return 0.0;
-  }
+
+  std::string Path(const std::string& path, int no = -1) const;
 };
 
 } /* namespace toyml */

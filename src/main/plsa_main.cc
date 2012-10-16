@@ -19,8 +19,9 @@ DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
 
 DEFINE_int32(topics, 100, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
-DEFINE_string(topicpath, "../data/topic/topics.dat", "output file of topics");
-DEFINE_string(modelpath, "../data/topic/plsa_model.dat", "output file of plsa model");
+DEFINE_int32(log_interval, 10, "log interval");
+DEFINE_int32(save_interval, 10, "save interval");
+DEFINE_string(datadir, "../data/topic/", "output data directory");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
@@ -36,11 +37,17 @@ int main(int argc, char **argv) {
   VLOG(0) << "dataset.StatString: " << dataset.StatString();
   VLOG(4) << "dataset.Doc(0): " << dataset.Doc(0).ToString();
 
+  toyml::PLSAOptions options;
+  options.ntopics = FLAGS_topics;
+  options.niters = FLAGS_iterators;
+  options.log_interval = FLAGS_log_interval;
+  options.save_interval = FLAGS_save_interval;
+  options.datadir = FLAGS_datadir;
+  VLOG(0) << "options: " << options.ToString();
+
   toyml::PLSA plsa;
-  plsa.Init(dataset, FLAGS_topics, FLAGS_iterators);
+  plsa.Init(options, dataset);
   plsa.Train();
-  CHECK(plsa.SaveTopics(FLAGS_topicpath));
-  CHECK(plsa.SaveModel(FLAGS_modelpath));
 
   return 0;
 }

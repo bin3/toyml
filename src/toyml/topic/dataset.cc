@@ -25,12 +25,15 @@ Dataset::~Dataset() {
 }
 
 bool Dataset::Load(const std::string& fname) {
+  typedef std::map<uint32_t, uint32_t> Word2Freq;
+
   std::ifstream inf(fname);
   if (!inf) {
     LOG(ERROR) << "Failed to open data file " << fname;
     return false;
   }
-  typedef std::map<uint32_t, uint32_t> Word2Freq;
+
+  Clear();
   std::string line;
   std::vector<std::string> tokens;
   while (std::getline(inf, line)) {
@@ -51,6 +54,16 @@ bool Dataset::Load(const std::string& fname) {
     }
     docs_.push_back(doc);
   }
+
+  // build posting lists
+  posts_.resize(DictSize());
+  for (std::size_t d = 0; d < docs_.size(); ++d) {
+    const Document& doc = docs_[d];
+    for (std::size_t p = 0; p < doc.Size(); ++p) {
+      posts_[doc.Word(p)].Add(d, doc.Freq(p));
+    }
+  }
+
   return true;
 }
 
