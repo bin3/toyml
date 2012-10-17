@@ -19,7 +19,7 @@ DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
 
 DEFINE_int32(topics, 100, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
-DEFINE_int32(log_interval, 10, "log interval");
+DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(save_interval, 10, "save interval");
 DEFINE_string(datadir, "../data/topic/", "output data directory");
 
