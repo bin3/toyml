@@ -189,26 +189,26 @@ void PLSA::InitProb() {
     p_z_[z] /= norm;
   }
 
-  for (std::size_t d = 0; d < nd_; ++d) {
+  for (std::size_t z = 0; z < nz_; ++z) {
     norm = 0;
-    for (std::size_t z = 0; z < nz_; ++z) {
+    for (std::size_t d = 0; d < nd_; ++d) {
       int r = std::rand() % kMod + 1;
       p_d_z_(d, z) = r;
       norm += r;
     }
-    for (std::size_t z = 0; z < nz_; ++z) {
+    for (std::size_t d = 0; d < nd_; ++d) {
       p_d_z_(d, z) /= norm;
     }
   }
 
-  for (std::size_t w = 0; w < nw_; ++w) {
+  for (std::size_t z = 0; z < nz_; ++z) {
     norm = 0;
-    for (std::size_t z = 0; z < nz_; ++z) {
+    for (std::size_t w = 0; w < nw_; ++w) {
       int r = std::rand() % kMod + 1;
       p_w_z_(w, z) = r;
       norm += r;
     }
-    for (std::size_t z = 0; z < nz_; ++z) {
+    for (std::size_t w = 0; w < nw_; ++w) {
       p_w_z_(w, z) /= norm;
     }
   }

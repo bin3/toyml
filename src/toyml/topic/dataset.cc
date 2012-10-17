@@ -15,13 +15,10 @@ namespace toyml {
 
 static const std::string kSeperator = " \r\n";
 
-Dataset::Dataset() {
-  // TODO Auto-generated constructor stub
-
+Dataset::Dataset(): woccurs_(0) {
 }
 
 Dataset::~Dataset() {
-  // TODO Auto-generated destructor stub
 }
 
 bool Dataset::Load(const std::string& fname) {

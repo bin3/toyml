@@ -95,7 +95,7 @@ public:
   }
   std::string StatString() const {
     std::stringstream ss;
-    ss << "DocSize=" << DocSize() << ", DicSize=" << DictSize();
+    ss << "DocSize=" << DocSize() << ", DicSize=" << DictSize() << ", WordOccurs=" << TotalWordOccurs();
     return ss.str();
   }
   bool SaveDict(const std::string& fname) {
@@ -111,14 +111,14 @@ public:
     return true;
   }
   std::size_t TotalWordOccurs() const {
-    std::size_t cnt = 0;
+    if (woccurs_ > 0) return woccurs_;
     for (uint32_t d = 0; d < DocSize(); ++d) {
       const Document& doc = Doc(d);
       for (uint32_t p = 0; p < doc.Size(); ++p) {
-        cnt += doc.Freq(p);
+        woccurs_ += doc.Freq(p);
       }
     }
-    return cnt;
+    return woccurs_;
   }
   uint32_t Index(const std::string& word) {
     Word2Idx::const_iterator it = word2idx_.find(word);
@@ -139,6 +139,7 @@ public:
     word2idx_.clear();
     words_.clear();
     docs_.clear();
+    woccurs_ = 0;
   }
 private:
   typedef std::map<std::string, uint32_t> Word2Idx;
@@ -146,6 +147,7 @@ private:
   std::vector<std::string> words_;
   std::vector<Document> docs_;
   std::vector<PostingList> posts_;
+  mutable std::size_t woccurs_;
 };
 
 } /* namespace toyml */

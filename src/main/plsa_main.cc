@@ -19,6 +19,7 @@ DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
 
 DEFINE_int32(topics, 100, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
+DEFINE_double(eps, 0.1, "EPS");
 DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(save_interval, 10, "save interval");
 DEFINE_string(datadir, "../data/topic/", "output data directory");
@@ -40,6 +41,7 @@ int main(int argc, char **argv) {
   toyml::PLSAOptions options;
   options.ntopics = FLAGS_topics;
   options.niters = FLAGS_iterators;
+  options.eps = FLAGS_eps;
   options.log_interval = FLAGS_log_interval;
   options.save_interval = FLAGS_save_interval;
   options.datadir = FLAGS_datadir;
