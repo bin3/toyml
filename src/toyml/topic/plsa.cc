@@ -9,6 +9,8 @@
 
 #include <ctime>
 #include <cstdlib>
+#include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <algorithm>
 #include <functional>
@@ -40,7 +42,7 @@ bool PLSA::Train() {
   SaveModel(0); // debug
   double pre_lik = LogLikelihood();
   double cur_lik = 0;
-  VLOG(0) << "[begin] LogLikelihood=" << pre_lik;
+  VLOG(0) << "[begin] L=" << pre_lik;
   std::size_t t = 0;
   for ( ; t < op_.niters; ++t) {
     LOG_EVERY_N(INFO, op_.log_interval) << "Iterator#" << t;
@@ -50,16 +52,16 @@ bool PLSA::Train() {
       SaveModel(t + 1);
     }
     cur_lik = LogLikelihood();
-    LOG_EVERY_N(INFO, op_.log_interval) << "LogLikelihood=" << cur_lik;
-    CHECK(cur_lik >= pre_lik);
     double diff_lik = cur_lik - pre_lik;
+    LOG_EVERY_N(INFO, op_.log_interval) << std::setprecision(10) << "L=" << cur_lik << ", diff=" << diff_lik;
+    CHECK(diff_lik >= 0.0);
     if (diff_lik < op_.eps) {
       VLOG(0) << "[break] Iterator#" << t << " diff=" << diff_lik << ", eps=" << op_.eps;
       break;
     }
     pre_lik = cur_lik;
   }
-  VLOG(0) << "[end] LogLikelihood=" << cur_lik;
+  VLOG(0) << "[end] L=" << cur_lik;
   if ((t + 1) % op_.save_interval != 0) {
     SaveModel(t + 1);
   }

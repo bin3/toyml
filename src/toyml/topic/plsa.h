@@ -92,7 +92,7 @@ struct PLSAOptions {
   std::string dzpath;
   std::string wzpath;
   std::string seperator;
-  PLSAOptions(): niters(100), ntopics(100), eps(1e-5), log_interval(10), save_interval(10), topn(10),
+  PLSAOptions(): niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10), topn(10),
       datadir("./"), topic_path("topic_words.dat"), tpath("topic.dat"), dzpath("doc-topic.dat"), wzpath("word-topic.dat"),
       seperator("\t") {}
   std::string ToString() const {
