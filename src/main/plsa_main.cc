@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -34,6 +35,7 @@ int main(int argc, char **argv) {
 
   toyml::Dataset dataset;
   CHECK(dataset.Load(FLAGS_docpath)) << "Failed to load file " << FLAGS_docpath;
+  VLOG(0) << "docpath=" << FLAGS_docpath;
   CHECK(dataset.SaveDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
   VLOG(0) << "dataset.StatString: " << dataset.StatString();
   VLOG(4) << "dataset.Doc(0): " << dataset.Doc(0).ToString();
@@ -48,8 +50,15 @@ int main(int argc, char **argv) {
   VLOG(0) << "options: " << options.ToString();
 
   toyml::PLSA plsa;
-  plsa.Init(options, dataset);
-  plsa.Train();
+  CHECK(plsa.Init(options, dataset));
+  boost::posix_time::ptime start =
+      boost::posix_time::microsec_clock::local_time();
+  std::size_t niters = plsa.Train();
+  boost::posix_time::ptime end =
+      boost::posix_time::microsec_clock::local_time();
+  boost::posix_time::time_duration elapsed = end - start;
+  double duration_per_iter = static_cast<double>(elapsed.total_seconds()) / niters;
+  VLOG(0) << "niters=" << niters << ", duration_per_iter=" << duration_per_iter << "s";
 
   return 0;
 }

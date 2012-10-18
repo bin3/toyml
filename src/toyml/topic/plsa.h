@@ -119,8 +119,9 @@ class PLSA {
 public:
   virtual ~PLSA();
   bool Init(const PLSAOptions& options, const Dataset& dataset);
-  bool Train();
-  bool SaveModel(int no = -1) const;
+  std::size_t Train();
+  bool SaveModel(int no) const;
+  bool SaveModel(const std::string& suffix = "") const;
   bool SaveTopics(const std::string& path) const;
   bool SaveTModel(const std::string& path) const;
   bool SaveDZModel(const std::string& path) const;
@@ -144,7 +145,6 @@ private:
   void Mstep();
   void Estep();
 
-  std::string Path(const std::string& path, int no = -1) const;
   std::string Path(const std::string& path, const std::string& suffix) const;
 };
 

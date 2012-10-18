@@ -37,11 +37,11 @@ bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
   return true;
 }
 
-bool PLSA::Train() {
+std::size_t PLSA::Train() {
   InitProb();
   double pre_lik = LogLikelihood();
   double cur_lik = 0;
-  VLOG(0) << "[begin] L=" << pre_lik;
+  VLOG(0) << "[begin] L=" << std::setprecision(10) << pre_lik;
   std::size_t t = 0;
   for ( ; t < op_.niters; ++t) {
     LOG_EVERY_N(INFO, op_.log_interval) << "Iterator#" << t;
@@ -60,17 +60,23 @@ bool PLSA::Train() {
     }
     pre_lik = cur_lik;
   }
-  VLOG(0) << "[end] L=" << cur_lik;
-  SaveModel();
-  return true;
+  VLOG(0) << "[end] L=" << std::setprecision(10) << cur_lik;
+  SaveModel(op_.finalsuffix);
+  return std::min(t + 1, op_.niters);
 }
 
 bool PLSA::SaveModel(int no) const {
-  VLOG(1) << "SaveModel no=" << no;
-  bool ret = SaveTopics(Path(op_.topic_path, no));
-  ret &= SaveTModel(Path(op_.tpath, no));
-  ret &= SaveDZModel(Path(op_.dzpath, no));
-  ret &= SaveWZModel(Path(op_.wzpath, no));
+  std::stringstream ss;
+  ss << no;
+  return SaveModel(ss.str());
+}
+
+bool PLSA::SaveModel(const std::string& suffix) const {
+  VLOG(1) << "SaveModel suffix=" << suffix;
+  bool ret = SaveTopics(Path(op_.topic_path, suffix));
+  ret &= SaveTModel(Path(op_.tpath, suffix));
+  ret &= SaveDZModel(Path(op_.dzpath, suffix));
+  ret &= SaveWZModel(Path(op_.wzpath, suffix));
   return ret;
 }
 
@@ -280,17 +286,12 @@ void PLSA::Mstep() {
   }
 }
 
-std::string PLSA::Path(const std::string& path, int no) const {
-  if (no < 0) return op_.datadir + "/" + path;
-  std::stringstream ss;
-  ss << op_.datadir << "/" << path << "." << no;
-  return ss.str();
-}
-
-std::string PLSA::Path(const std::string& path, const std::string& suffix) const {
-  std::stringstream ss;
-  ss << op_.datadir << "/" << path << "." << suffix;
-  return ss.str();
+std::string PLSA::Path(const std::string& fname, const std::string& suffix) const {
+  if (suffix.length() == 0) {
+    return op_.datadir + "/" + fname;
+  } else {
+    return op_.datadir + "/" + fname + "." + suffix;
+  }
 }
 
 } /* namespace toyml */
