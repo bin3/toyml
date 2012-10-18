@@ -91,10 +91,14 @@ struct PLSAOptions {
   std::string tpath;
   std::string dzpath;
   std::string wzpath;
+  std::string finalsuffix;
   std::string seperator;
-  PLSAOptions(): niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10), topn(10),
-      datadir("./"), topic_path("topic_words.dat"), tpath("topic.dat"), dzpath("doc-topic.dat"), wzpath("word-topic.dat"),
-      seperator("\t") {}
+  PLSAOptions() :
+      niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10), topn(20),
+      datadir("./"), topic_path("topic-words.dat"), tpath("topic-prob.dat"),
+      dzpath("doc-topic-prob.dat"), wzpath("word-topic-prob.dat"),
+      finalsuffix("final"), seperator("\t") {
+  }
   std::string ToString() const {
     std::stringstream ss;
     ss << NAME_VAL(niters) << ", ";
@@ -141,6 +145,7 @@ private:
   void Estep();
 
   std::string Path(const std::string& path, int no = -1) const;
+  std::string Path(const std::string& path, const std::string& suffix) const;
 };
 
 } /* namespace toyml */

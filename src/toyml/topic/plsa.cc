@@ -39,7 +39,6 @@ bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
 
 bool PLSA::Train() {
   InitProb();
-  SaveModel(0); // debug
   double pre_lik = LogLikelihood();
   double cur_lik = 0;
   VLOG(0) << "[begin] L=" << pre_lik;
@@ -62,9 +61,7 @@ bool PLSA::Train() {
     pre_lik = cur_lik;
   }
   VLOG(0) << "[end] L=" << cur_lik;
-  if ((t + 1) % op_.save_interval != 0) {
-    SaveModel(t + 1);
-  }
+  SaveModel();
   return true;
 }
 
@@ -287,6 +284,12 @@ std::string PLSA::Path(const std::string& path, int no) const {
   if (no < 0) return op_.datadir + "/" + path;
   std::stringstream ss;
   ss << op_.datadir << "/" << path << "." << no;
+  return ss.str();
+}
+
+std::string PLSA::Path(const std::string& path, const std::string& suffix) const {
+  std::stringstream ss;
+  ss << op_.datadir << "/" << path << "." << suffix;
   return ss.str();
 }
 
