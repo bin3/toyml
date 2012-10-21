@@ -13,7 +13,7 @@
 
 namespace toyml {
 
-static const std::string kSeperator = " \r\n";
+static const std::string kSeperator = " \t\r\n";
 
 Dataset::Dataset(): woccurs_(0) {
 }

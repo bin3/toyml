@@ -14,6 +14,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <glog/logging.h>
 
+#include "utils.h"
 #include "dataset.h"
 
 namespace toyml {
@@ -74,8 +75,6 @@ private:
   std::vector<std::vector<T> > zvec_;
 };
 
-#define NAME_VAL(v) #v << "=" << v
-
 /**
  * @brief pLSA model options
  */
@@ -127,7 +126,7 @@ public:
   bool SaveDZModel(const std::string& path) const;
   bool SaveWZModel(const std::string& path) const;
 private:
-  PLSAOptions op_;
+  PLSAOptions opts_;
   const Dataset* dataset_;
 
   std::size_t nd_;  // number of documents
@@ -145,7 +144,7 @@ private:
   void Mstep();
   void Estep();
 
-  std::string Path(const std::string& path, const std::string& suffix) const;
+  std::string Path(const std::string& fname, const std::string& suffix) const;
 };
 
 } /* namespace toyml */

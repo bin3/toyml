@@ -98,8 +98,8 @@ public:
     ss << "DocSize=" << DocSize() << ", DicSize=" << DictSize() << ", WordOccurs=" << TotalWordOccurs();
     return ss.str();
   }
-  bool SaveDict(const std::string& fname) {
-    std::ofstream outf(fname.c_str());
+  bool SaveDict(const std::string& path) const {
+    std::ofstream outf(path.c_str());
     if (!outf) {
       return false;
     }
@@ -141,7 +141,7 @@ public:
     docs_.clear();
     woccurs_ = 0;
   }
-private:
+protected:
   typedef std::map<std::string, uint32_t> Word2Idx;
   Word2Idx word2idx_;
   std::vector<std::string> words_;
