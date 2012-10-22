@@ -15,7 +15,7 @@
 DECLARE_int32(stderrthreshold);
 //DECLARE_string(log_dir);
 
-DEFINE_string(docpath, "../data/topic/testdocs.dat", "input file of documents");
+DEFINE_string(docpath, "../data/topic/doc.dat.test", "input file of documents");
 DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
 
 DEFINE_int32(topics, 100, "number of topics");

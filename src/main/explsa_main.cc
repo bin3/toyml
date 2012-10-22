@@ -26,7 +26,7 @@ DEFINE_string(datadir, "../data/explsa/", "output data directory");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
-//  FLAGS_log_dir = "log/";
+//  FLAGS_log_dir = "../log/";
   google::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
 

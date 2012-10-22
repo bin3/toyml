@@ -34,9 +34,11 @@ bool Dataset::Load(const std::string& fname) {
   std::string line;
   std::vector<std::string> tokens;
   while (std::getline(inf, line)) {
+      boost::trim(line);
     boost::split(tokens, line, boost::is_any_of(kSeperator), boost::token_compress_on);
     Word2Freq word2freq;
     for (std::size_t i = 0; i < tokens.size(); ++i) {
+        if (tokens[i].size() == 0) continue;
       uint32_t word = Index(tokens[i]);
       Word2Freq::iterator it = word2freq.find(word);
       if (it == word2freq.end()) {

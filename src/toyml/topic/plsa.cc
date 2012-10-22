@@ -32,7 +32,13 @@ bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
   p_z_.resize(nz_);
   p_d_z_.resize(nd_, nz_);
   p_w_z_.resize(nw_, nz_);
-  p_z_dw_.Resize(nd_, nw_, nz_);
+
+  p_z_new_.resize(nz_);
+  p_d_z_new_.resize(nd_, nz_);
+  p_w_z_new_.resize(nw_, nz_);
+  p_z_dw_.resize(nz_);
+  dnorm_.resize(nz_);
+  wnorm_.resize(nz_);
 
   return true;
 }
@@ -45,8 +51,9 @@ std::size_t PLSA::Train() {
   std::size_t t = 0;
   for ( ; t < opts_.niters; ++t) {
     LOG_EVERY_N(INFO, opts_.log_interval) << "Iterator#" << t;
-    Estep();
-    Mstep();
+//    Estep();
+//    Mstep();
+    EMStep();
     if ((t + 1) % opts_.save_interval == 0) {
       SaveModel(t + 1);
     }
@@ -117,7 +124,7 @@ bool PLSA::SaveTModel(const std::string& path) const {
   }
   outf << nz_ << "\n";
   for (std::size_t z = 0; z < nz_; ++z) {
-    outf << p_z_[z] << "\n";
+    outf << p_z_(z) << "\n";
   }
   outf.close();
   VLOG(2) << "Saved topic model to " << path;
@@ -161,15 +168,16 @@ bool PLSA::SaveWZModel(const std::string& path) const {
 }
 
 double PLSA::LogLikelihood() {
+  VLOG(2) << "LogLikelihood";
   double lik = 0;
-  for (uint32_t d = 0; d < dataset_->DocSize(); ++d) {
+  for (uint32_t d = 0; d < nd_; ++d) {
     const Document& doc = dataset_->Doc(d);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
       uint32_t w = doc.Word(p);
       uint32_t n = doc.Freq(p);
       double p_dw = 0;
       for (uint32_t z = 0; z < nz_; ++z) {
-        p_dw += p_z_[z] * p_d_z_(d, z) * p_w_z_(w, z);
+        p_dw += p_z_(z) * p_d_z_(d, z) * p_w_z_(w, z);
       }
       VLOG(5) << "d=" << d << ", w=" << w << ", p_dw=" << p_dw;
       lik += n * log(p_dw);
@@ -185,11 +193,11 @@ void PLSA::InitProb() {
   double norm = 0;
   for (std::size_t z = 0; z < nz_; ++z) {
     int r = std::rand() % kMod + 1;
-    p_z_[z] = r;
+    p_z_(z) = r;
     norm += r;
   }
   for (std::size_t z = 0; z < nz_; ++z) {
-    p_z_[z] /= norm;
+    p_z_(z) /= norm;
   }
 
   for (std::size_t z = 0; z < nz_; ++z) {
@@ -217,72 +225,54 @@ void PLSA::InitProb() {
   }
 }
 
-void PLSA::Estep() {
-  for (uint32_t d = 0; d < dataset_->DocSize(); ++d) {
+void PLSA::EMStep() {
+  VLOG(2) << "EMStep";
+
+  p_z_new_.clear();
+  p_d_z_new_.clear();
+  p_w_z_new_.clear();
+
+  p_z_dw_.clear();
+  dnorm_.clear();
+  wnorm_.clear();
+
+  double znorm = 0;
+  for (uint32_t d = 0; d < nd_; ++d) {
     const Document& doc = dataset_->Doc(d);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
       uint32_t w = doc.Word(p);
+      uint32_t n = doc.Freq(p);
+      // Estep
       double norm = 0;
       for (uint32_t z = 0; z < nz_; ++z) {
-        double p_zdw = p_z_[z] * p_d_z_(d, z) * p_w_z_(w, z);
-        p_z_dw_(d, w, z) = p_zdw;
+        double p_zdw = p_z_(z) * p_d_z_(d, z) * p_w_z_(w, z);
+        p_z_dw_(z) = p_zdw;
         norm += p_zdw;
-        VLOG(5) << "d=" << d << ", w=" << w << ", z=" << z << ", p_zdw=" << p_zdw << ", p_z_dw_(d, w, z)=" << p_z_dw_(d, w, z);
       }
-      VLOG(4) << "d=" << d << ", w=" << w << ", norm=" << norm;
       for (uint32_t z = 0; z < nz_; ++z) {
-        p_z_dw_(d, w, z) /= norm;
-//        CHECK(p_z_dw_(d, w, z) > 0) << "d=" << d << ", w=" << w << ", z=" << z;
+        p_z_dw_(z) /= norm;
+      }
+      // Mstep
+      for (uint32_t z = 0; z < nz_; ++z) {
+        double np = n * p_z_dw_(z);
+        p_d_z_new_(d, z) += np;
+        p_w_z_new_(w, z) += np;
+        p_z_new_(z) += np;
+        dnorm_(z) += np;
+        wnorm_(z) += np;
+        znorm += np;
       }
     }
   }
-}
-
-void PLSA::Mstep() {
-  double znorm = 0;
+  // normalize
   for (uint32_t z = 0; z < nz_; ++z) {
-    // p(d|z)
-    double dnorm = 0;
-    for (uint32_t d = 0; d < dataset_->DocSize(); ++d) {
-      const Document& doc = dataset_->Doc(d);
-      double p_d_z = 0;
-      for (uint32_t p = 0; p < doc.Size(); ++p) {
-        uint32_t w = doc.Word(p);
-        uint32_t n = doc.Freq(p);
-//        CHECK(n > 0) << "z=" << z << ", d=" << d << ", w=" << w;
-//        CHECK(p_z_dw_(d, w, z) > 0) << "z=" << z << ", d=" << d << ", w=" << w;
-        p_d_z += n * p_z_dw_(d, w, z);
-      }
-      VLOG(5) << "z=" << z << ", d=" << d << ", p_d_z=" << p_d_z;
-      p_d_z_(d, z) = p_d_z;
-      dnorm += p_d_z;
+    for (uint32_t d = 0; d < nd_; ++d) {
+      p_d_z_(d, z) = p_d_z_new_(d, z) / dnorm_(z);
     }
-    VLOG(4) << "z=" << z << ", dnorm=" << dnorm;
-    for (uint32_t d = 0; d < dataset_->DocSize(); ++d) {
-      p_d_z_(d, z) /= dnorm;
+    for (uint32_t w = 0; w < nw_; ++w) {
+      p_w_z_(w, z) = p_w_z_new_(w, z) / wnorm_(z);
     }
-    p_z_[z] = dnorm;
-    znorm += dnorm;
-
-    // p(w|z)
-    double wnorm = 0;
-    for (uint32_t w = 0; w < dataset_->DictSize(); ++w) {
-      const PostingList& post = dataset_->Post(w);
-      double p_w_z = 0;
-      for (uint32_t p = 0; p < post.Size(); ++p) {
-        uint32_t d = post.Doc(p);
-        uint32_t n = post.Freq(p);
-        p_w_z += n * p_z_dw_(d, w, z);
-      }
-      p_w_z_(w, z) = p_w_z;
-      wnorm += p_w_z;
-    }
-    for (uint32_t w = 0; w < dataset_->DictSize(); ++w) {
-      p_w_z_(w, z) /= wnorm;
-    }
-  }
-  for (uint32_t z = 0; z < nz_; ++z) {
-    p_z_[z] /= znorm;
+    p_z_(z) = p_z_new_(z) / znorm;
   }
 }
 

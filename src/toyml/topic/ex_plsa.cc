@@ -12,7 +12,6 @@
 namespace toyml {
 
 ExPLSA::~ExPLSA() {
-  // TODO Auto-generated destructor stub
 }
 
 bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
@@ -34,7 +33,15 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   p_c_u_.resize(nc_, nu_);
   p_t_c_.resize(nt_, nc_);
   p_w_t_.resize(nw_, nt_);
-  p_ct_uw_.Resize(nu_, nw_, nc_, nt_);
+
+  p_c_u_new_.resize(nc_, nu_);
+  p_t_c_new_.resize(nt_, nc_);
+  p_w_t_new_.resize(nw_, nt_);
+  p_ct_.resize(nc_, nt_);
+
+  unorm_.resize(nu_);
+  cnorm_.resize(nc_);
+  tnorm_.resize(nt_);
 
   return true;
 }
@@ -47,8 +54,7 @@ std::size_t ExPLSA::Train() {
   std::size_t t = 0;
   for ( ; t < opts_.niters; ++t) {
     LOG_EVERY_N(INFO, opts_.log_interval) << "Iterator#" << t;
-    Estep();
-    Mstep();
+    EMStep();
     if ((t + 1) % opts_.save_interval == 0) {
       SaveModel(t + 1);
     }
@@ -124,9 +130,10 @@ bool ExPLSA::SaveCUModel(const std::string& path) const {
 }
 
 double ExPLSA::LogLikelihood() {
-  VLOG(4) << "LogLikelihood";
+  VLOG(2) << "LogLikelihood";
   double lik = 0;
-  for (uint32_t u = 0; u < ddata_->DocSize(); ++u) {
+  for (uint32_t u = 0; u < nu_; ++u) {
+    VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
@@ -192,103 +199,76 @@ void ExPLSA::InitProb() {
   }
 }
 
-void ExPLSA::Estep() {
-  VLOG(4) << "Estep";
-  double norm = 0;
-  for (uint32_t u = 0; u < ddata_->DocSize(); ++u) {
+void ExPLSA::EMStep() {
+  VLOG(2) << "EMStep";
+
+  p_c_u_new_.clear();
+  p_t_c_new_.clear();
+  p_w_t_new_.clear();
+
+  unorm_.clear();
+  cnorm_.clear();
+  tnorm_.clear();
+
+  for (uint32_t u = 0; u < nu_; ++u) {
+    VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
       uint32_t w = doc.Word(p);
-      norm = 0;
+      uint32_t n = doc.Freq(p);
+
+      // Estep
+      double norm = 0;
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
           double p_wtc_u = p_w_t_(w, t) * p_t_c_(t, c) * p_c_u_(c, u);
-          p_ct_uw_(u, w, c, t) = p_wtc_u;
+          p_ct_(c, t) = p_wtc_u;
           norm += p_wtc_u;
         }
       }
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
-          p_ct_uw_(u, w, c, t) /= norm;
+          p_ct_(c, t) /= norm;
         }
       }
-    }
-  }
-}
 
-void ExPLSA::Mstep() {
-  VLOG(4) << "Mstep";
-  // p(w|t)
-  double norm = 0;
-  for (uint32_t t = 0; t < nt_; ++t) {
-    norm = 0;
-    for (uint32_t w = 0; w < nw_; ++w) {
-      const PostingList& post = ddata_->Post(w);
-      double p_w_t = 0;
-      for (uint32_t ui = 0; ui < post.Size(); ++ui) {
-        uint32_t u = post.Doc(ui);
-        uint32_t n = post.Freq(ui);
-        const Document& fol = fdata_->Doc(u);
-        for (uint32_t fi = 0; fi < fol.Size(); ++fi) {
-          uint32_t c = fol.Word(fi);
-          p_w_t += n * p_ct_uw_(u, w, c, t);
-        }
-      }
-      p_w_t_(w, t) = p_w_t;
-      norm += p_w_t;
-    }
-    for (uint32_t w = 0; w < nw_; ++w) {
-      p_w_t_(w, t) /= norm;
-    }
-  }
-
-  // p(t|c)
-  for (uint32_t c = 0; c < nc_; ++c) {
-    norm = 0;
-    const PostingList& post = fdata_->Post(c);
-    for (uint32_t t = 0; t < nt_; ++t) {
-      double p_t_c = 0;
-      for (uint32_t ui = 0; ui < post.Size(); ++ui) {
-        uint32_t u = post.Doc(ui);
-        const Document& doc = ddata_->Doc(u);
-        for (uint32_t wi = 0; wi < doc.Size(); ++wi) {
-          uint32_t w = doc.Word(wi);
-          uint32_t n = doc.Freq(wi);
-          p_t_c += n * p_ct_uw_(u, w, c, t);
-        }
-      }
-      p_t_c_(t, c) = p_t_c;
-      norm += p_t_c;
-    }
-    for (uint32_t t = 0; t < nt_; ++t) {
-      p_t_c_(t, c) /= norm;
-    }
-  }
-
-  // p(c|u)
-  for (uint32_t u = 0; u < nu_; ++u) {
-    norm = 0;
-    const Document& fol = fdata_->Doc(u);
-    for (uint32_t fi = 0; fi < fol.Size(); ++fi) {
-      uint32_t c = fol.Word(fi);
-      double p_c_u = 0;
-      const Document& doc = ddata_->Doc(u);
-      for (uint32_t wi = 0; wi < doc.Size(); ++wi) {
-        uint32_t w = doc.Word(wi);
-        uint32_t n = doc.Freq(wi);
+      // Mstep
+      for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
+        uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
-          p_c_u += n * p_ct_uw_(u, w, c, t);
+          double np = n * p_ct_(c, t);
+          p_c_u_new_(c, u) += np;
+          p_t_c_new_(t, c) += np;
+          p_w_t_new_(w, t) += np;
+          unorm_(u) += np;
+          cnorm_(c) += np;
+          tnorm_(t) += np;
         }
       }
-      p_c_u_(c, u) = p_c_u;
-      norm += p_c_u;
     }
-    for (uint32_t fi = 0; fi < fol.Size(); ++fi) {
+  }
+
+  // normalize
+  for (uint32_t u = 0; u < nu_; ++u) {
+    const Document& fol = fdata_->Doc(u);
+    for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
       uint32_t c = fol.Word(fi);
-      p_c_u_(c, u) /= norm;
+      p_c_u_(c, u) = p_c_u_new_(c, u) / unorm_(u);
+    }
+  }
+
+  for (uint32_t c = 0; c < nc_; ++c) {
+    for (uint32_t t = 0; t < nt_; ++t) {
+      p_t_c_(t, c) = p_t_c_new_(t, c) / cnorm_(c);
+    }
+  }
+
+  for (uint32_t t = 0; t < nt_; ++t) {
+    for (uint32_t w = 0; w < nw_; ++w) {
+      p_w_t_(w, t) = p_w_t_new_(w, t) / tnorm_(t);
     }
   }
 }
@@ -302,7 +282,7 @@ std::string ExPLSA::Path(const std::string& fname,
   }
 }
 
-bool ExPLSA::SaveModel(const std::string& path, const matrix<double>& mat,
+bool ExPLSA::SaveModel(const std::string& path, const ublas::matrix<double>& mat,
     std::size_t size1, std::size_t size2) const {
   std::ofstream outf(path.c_str());
   if (!outf) {
