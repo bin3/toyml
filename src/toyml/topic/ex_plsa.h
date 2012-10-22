@@ -98,7 +98,7 @@ private:
   ublas::matrix<double> p_c_u_new_;          // p(c|u)
   ublas::matrix<double> p_t_c_new_;          // p(t|c)
   ublas::matrix<double> p_w_t_new_;          // p(w|t)
-  ublas::matrix<double> p_ct_;
+//  ublas::matrix<double> p_ct_;
   ublas::vector<double> unorm_;
   ublas::vector<double> cnorm_;
   ublas::vector<double> tnorm_;

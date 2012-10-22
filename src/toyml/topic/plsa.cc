@@ -180,7 +180,9 @@ double PLSA::LogLikelihood() {
         p_dw += p_z_(z) * p_d_z_(d, z) * p_w_z_(w, z);
       }
       VLOG(5) << "d=" << d << ", w=" << w << ", p_dw=" << p_dw;
-      lik += n * log(p_dw);
+      if (p_dw > 0) {
+        lik += n * log(p_dw);
+      }
     }
   }
   return lik;

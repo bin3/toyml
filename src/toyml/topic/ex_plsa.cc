@@ -7,6 +7,7 @@
 
 #include "ex_plsa.h"
 
+#include <omp.h>
 #include <iomanip>
 
 namespace toyml {
@@ -37,7 +38,7 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   p_c_u_new_.resize(nc_, nu_);
   p_t_c_new_.resize(nt_, nc_);
   p_w_t_new_.resize(nw_, nt_);
-  p_ct_.resize(nc_, nt_);
+//  p_ct_.resize(nc_, nt_);
 
   unorm_.resize(nu_);
   cnorm_.resize(nc_);
@@ -132,6 +133,7 @@ bool ExPLSA::SaveCUModel(const std::string& path) const {
 double ExPLSA::LogLikelihood() {
   VLOG(2) << "LogLikelihood";
   double lik = 0;
+#pragma omp parallel for reduction(+: lik)
   for (uint32_t u = 0; u < nu_; ++u) {
     VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
     const Document& doc = ddata_->Doc(u);
@@ -147,7 +149,9 @@ double ExPLSA::LogLikelihood() {
         }
       }
       VLOG(5) << "d=" << u << ", w=" << w << ", p_w_u=" << p_w_u;
-      lik += n * log(p_w_u);
+      if (p_w_u > 0) {
+        lik += n * log(p_w_u);
+      }
     }
   }
   return lik;
@@ -210,8 +214,12 @@ void ExPLSA::EMStep() {
   cnorm_.clear();
   tnorm_.clear();
 
+//  ublas::matrix<double> p_ct_(nc_, nt_, 0);
+//#pragma omp parallel for private(p_ct_)
+#pragma omp parallel for
   for (uint32_t u = 0; u < nu_; ++u) {
     VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
+    ublas::matrix<double> p_ct_(nc_, nt_, 0);
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
@@ -220,6 +228,7 @@ void ExPLSA::EMStep() {
 
       // Estep
       double norm = 0;
+//#pragma omp parallel for reduction(+: norm)
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
@@ -228,30 +237,30 @@ void ExPLSA::EMStep() {
           norm += p_wtc_u;
         }
       }
+      // Mstep
+//#pragma omp parallel for
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
           p_ct_(c, t) /= norm;
-        }
-      }
-
-      // Mstep
-      for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
-        uint32_t c = fol.Word(fi);
-        for (uint32_t t = 0; t < nt_; ++t) {
           double np = n * p_ct_(c, t);
+//#pragma omp critical
+          // TODO
+          {
           p_c_u_new_(c, u) += np;
           p_t_c_new_(t, c) += np;
           p_w_t_new_(w, t) += np;
           unorm_(u) += np;
           cnorm_(c) += np;
           tnorm_(t) += np;
+          }
         }
       }
     }
   }
 
   // normalize
+//#pragma omp parallel for
   for (uint32_t u = 0; u < nu_; ++u) {
     const Document& fol = fdata_->Doc(u);
     for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
@@ -260,12 +269,14 @@ void ExPLSA::EMStep() {
     }
   }
 
+//#pragma omp parallel for
   for (uint32_t c = 0; c < nc_; ++c) {
     for (uint32_t t = 0; t < nt_; ++t) {
       p_t_c_(t, c) = p_t_c_new_(t, c) / cnorm_(c);
     }
   }
 
+//#pragma omp parallel for
   for (uint32_t t = 0; t < nt_; ++t) {
     for (uint32_t w = 0; w < nw_; ++w) {
       p_w_t_(w, t) = p_w_t_new_(w, t) / tnorm_(t);

@@ -31,6 +31,7 @@ set(CXX_FLAGS
  #-march=native
  # -MMD
   -std=c++0x
+  -fopenmp
  )
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
