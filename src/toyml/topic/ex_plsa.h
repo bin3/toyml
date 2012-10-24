@@ -9,8 +9,10 @@
 #define EX_PLSA_H_
 
 #include <cstddef>
+#include <atomic>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/thread.hpp>
 #include <glog/logging.h>
 
 #include "utils.h"
@@ -30,6 +32,7 @@ struct ExPLSAOptions {
   int log_interval;
   int save_interval;
   int em_log_interval;
+  std::size_t threads;
   std::size_t topn;
   std::string datadir;
   std::string topic_path;
@@ -40,19 +43,20 @@ struct ExPLSAOptions {
   std::string seperator;
   ExPLSAOptions() :
       niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10),
-      em_log_interval(100), topn(20),
-      datadir("./"), topic_path("topic-words.dat"), wtpath("word-topic-prob.dat"),
+      em_log_interval(1000), threads(4), topn(10),
+      datadir("./"), topic_path("topics.dat"), wtpath("word-topic-prob.dat"),
       tcpath("topic-cel-prob.dat"), cupath("cel-user-prob.dat"),
       finalsuffix("final"), seperator("\t") {
   }
   std::string ToString() const {
     std::stringstream ss;
-    ss << NAME_VAL(niters) << ", ";
-    ss << NAME_VAL(ntopics) << ", ";
-    ss << NAME_VAL(eps) << ", ";
-    ss << NAME_VAL(log_interval) << ", ";
-    ss << NAME_VAL(save_interval) << ", ";
-    ss << NAME_VAL(topn) << ", ";
+    ss << NAME_VAL_COMMA(niters);
+    ss << NAME_VAL_COMMA(ntopics);
+    ss << NAME_VAL_COMMA(eps);
+    ss << NAME_VAL_COMMA(log_interval);
+    ss << NAME_VAL_COMMA(save_interval);
+    ss << NAME_VAL_COMMA(threads);
+    ss << NAME_VAL_COMMA(topn);
     ss << NAME_VAL(datadir);
     return ss.str();
   }
@@ -103,9 +107,19 @@ private:
   ublas::vector<double> cnorm_;
   ublas::vector<double> tnorm_;
 
+  std::atomic<std::size_t> uid_;
+  std::vector<ublas::matrix<double> > p_c_u_new_vec_;
+  std::vector<ublas::matrix<double> > p_t_c_new_vec_;
+  std::vector<ublas::matrix<double> > p_w_t_new_vec_;
+  std::vector<ublas::matrix<double> > p_ct_vec_;
+  std::vector<ublas::vector<double> > unorm_vec_;
+  std::vector<ublas::vector<double> > cnorm_vec_;
+  std::vector<ublas::vector<double> > tnorm_vec_;
+
   double LogLikelihood();
   void InitProb();
   void EMStep();
+  void DoEM(std::size_t tid);
 
   std::string Path(const std::string& fname, const std::string& suffix) const;
   bool SaveModel(const std::string& path, const ublas::matrix<double>& mat,

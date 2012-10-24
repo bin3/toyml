@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -21,12 +22,14 @@ DEFINE_int32(topics, 10, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_int32(log_interval, 1, "log interval");
-DEFINE_int32(save_interval, 10, "save interval");
+DEFINE_int32(em_log_interval, 1000, "EMStep log interval");
+DEFINE_int32(save_interval, 40, "save interval");
+DEFINE_int32(threads, 0, "the number of threads");
 DEFINE_string(datadir, "../data/explsa/", "output data directory");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
-//  FLAGS_log_dir = "../log/";
+//  FLAGS_log_dir = "log/";
   google::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
 
@@ -50,6 +53,8 @@ int main(int argc, char **argv) {
   options.eps = FLAGS_eps;
   options.log_interval = FLAGS_log_interval;
   options.save_interval = FLAGS_save_interval;
+  options.em_log_interval = FLAGS_em_log_interval;
+  options.threads = FLAGS_threads ? FLAGS_threads : boost::thread::hardware_concurrency();
   options.datadir = FLAGS_datadir;
   VLOG(0) << "options: " << options.ToString();
 

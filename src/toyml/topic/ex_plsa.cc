@@ -9,6 +9,8 @@
 
 #include <omp.h>
 #include <iomanip>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 namespace toyml {
 
@@ -43,6 +45,14 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   unorm_.resize(nu_);
   cnorm_.resize(nc_);
   tnorm_.resize(nt_);
+
+  p_c_u_new_vec_.resize(opts_.threads, ublas::matrix<double>(nc_, nu_));
+  p_t_c_new_vec_.resize(opts_.threads, ublas::matrix<double>(nt_, nc_));
+  p_w_t_new_vec_.resize(opts_.threads, ublas::matrix<double>(nw_, nt_));
+  p_ct_vec_.resize(opts_.threads, ublas::matrix<double>(nc_, nt_));
+  unorm_vec_.resize(opts_.threads, ublas::vector<double>(nu_));
+  cnorm_vec_.resize(opts_.threads, ublas::vector<double>(nc_));
+  tnorm_vec_.resize(opts_.threads, ublas::vector<double>(nt_));
 
   return true;
 }
@@ -90,7 +100,7 @@ bool ExPLSA::SaveModel(const std::string& suffix) const {
 }
 
 bool ExPLSA::SaveTopics(const std::string& path) const {
-  typedef std::pair<double, uint32_t> ProbWord;
+  typedef std::pair<double, uint32_t> ProbId;
 
   std::ofstream outf(path.c_str());
   if (!outf) {
@@ -98,18 +108,30 @@ bool ExPLSA::SaveTopics(const std::string& path) const {
     return false;
   }
 
-  std::vector<ProbWord> vec;
+  std::vector<ProbId> vec;
   vec.reserve(nw_);
-  for (std::size_t z = 0; z < nt_; ++z) {
+  for (std::size_t t = 0; t < nt_; ++t) {
+    outf << "Topic #" << t << ":\n";
+
     vec.clear();
     for (std::size_t w = 0; w < nw_; ++w) {
-      vec.push_back(ProbWord(p_w_t_(w, z), w));
+      vec.push_back(ProbId(p_w_t_(w, t), w));
     }
-    std::sort(vec.begin(), vec.end(), std::greater<ProbWord>());
-
-    outf << "Topic #" << z << ":\n";
+    std::sort(vec.begin(), vec.end(), std::greater<ProbId>());
+    outf << "  Top " << opts_.topn << " words:\n";
     for (std::size_t i = 0; i < vec.size() && i < opts_.topn; ++i) {
       outf << "\t" << ddata_->Word(vec[i].second) << "\t" << vec[i].first << "\n";
+    }
+
+    vec.clear();
+    for (std::size_t c = 0; c < nc_; ++c) {
+      vec.push_back(ProbId(p_t_c_(t, c), c));
+    }
+    std::sort(vec.begin(), vec.end(), std::greater<ProbId>());
+    outf << "  Top " << opts_.topn << " celebrities:\n";
+    for (std::size_t i = 0; i < vec.size() && i < opts_.topn; ++i) {
+      std::string twitter_id = fdata_->Word(vec[i].second);
+      outf << "\t" << twitter_id << "\t" << vec[i].first << "\n";
     }
   }
 
@@ -135,7 +157,7 @@ double ExPLSA::LogLikelihood() {
   double lik = 0;
 #pragma omp parallel for reduction(+: lik)
   for (uint32_t u = 0; u < nu_; ++u) {
-    VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
+    VLOG_IF(3, u % opts_.em_log_interval == 0) << "user#" << u;
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
@@ -148,7 +170,6 @@ double ExPLSA::LogLikelihood() {
           p_w_u += p_w_t_(w, t) * p_t_c_(t, c) * p_c_u_(c, u);
         }
       }
-      VLOG(5) << "d=" << u << ", w=" << w << ", p_w_u=" << p_w_u;
       if (p_w_u > 0) {
         lik += n * log(p_w_u);
       }
@@ -158,7 +179,7 @@ double ExPLSA::LogLikelihood() {
 }
 
 void ExPLSA::InitProb() {
-  VLOG(4) << "InitProb";
+  VLOG(2) << "InitProb";
   static int kMod = 10000;
   std::srand(std::time(NULL));
 
@@ -203,22 +224,19 @@ void ExPLSA::InitProb() {
   }
 }
 
-void ExPLSA::EMStep() {
-  VLOG(2) << "EMStep";
+void ExPLSA::DoEM(std::size_t tid) {
+  VLOG(3) << "DoEM thread#" << tid;
 
-  p_c_u_new_.clear();
-  p_t_c_new_.clear();
-  p_w_t_new_.clear();
+  p_c_u_new_vec_[tid].clear();
+  p_t_c_new_vec_[tid].clear();
+  p_w_t_new_vec_[tid].clear();
 
-  unorm_.clear();
-  cnorm_.clear();
-  tnorm_.clear();
+  unorm_vec_[tid].clear();
+  cnorm_vec_[tid].clear();
+  tnorm_vec_[tid].clear();
 
-//  ublas::matrix<double> p_ct_(nc_, nt_, 0);
-//#pragma omp parallel for private(p_ct_)
-#pragma omp parallel for
-  for (uint32_t u = 0; u < nu_; ++u) {
-    VLOG_EVERY_N(3, opts_.em_log_interval) << "user#" << google::COUNTER;
+  for (uint32_t u = 0; (u = uid_++) < nu_; ) {
+    VLOG_IF(3, u % opts_.em_log_interval == 0) << "user#" << u;
     ublas::matrix<double> p_ct_(nc_, nt_, 0);
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
@@ -228,7 +246,6 @@ void ExPLSA::EMStep() {
 
       // Estep
       double norm = 0;
-//#pragma omp parallel for reduction(+: norm)
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
@@ -238,48 +255,79 @@ void ExPLSA::EMStep() {
         }
       }
       // Mstep
-//#pragma omp parallel for
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
           p_ct_(c, t) /= norm;
           double np = n * p_ct_(c, t);
-//#pragma omp critical
-          // TODO
-          {
-          p_c_u_new_(c, u) += np;
-          p_t_c_new_(t, c) += np;
-          p_w_t_new_(w, t) += np;
-          unorm_(u) += np;
-          cnorm_(c) += np;
-          tnorm_(t) += np;
-          }
+          p_c_u_new_vec_[tid](c, u) += np;
+          p_t_c_new_vec_[tid](t, c) += np;
+          p_w_t_new_vec_[tid](w, t) += np;
+          unorm_vec_[tid](u) += np;
+          cnorm_vec_[tid](c) += np;
+          tnorm_vec_[tid](t) += np;
         }
       }
     }
   }
+}
+
+void ExPLSA::EMStep() {
+  VLOG(2) << "EMStep";
+
+  // EM using multi-thread
+  uid_ = 0;
+  boost::thread_group threads;
+  for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+    threads.create_thread(boost::bind(&ExPLSA::DoEM, this, tid));
+  }
+  threads.join_all();
 
   // normalize
 //#pragma omp parallel for
   for (uint32_t u = 0; u < nu_; ++u) {
+    double norm_sum = 0;
+    for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+      norm_sum += unorm_vec_[tid](u);
+    }
     const Document& fol = fdata_->Doc(u);
     for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
       uint32_t c = fol.Word(fi);
-      p_c_u_(c, u) = p_c_u_new_(c, u) / unorm_(u);
+      double sum = 0;
+      for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+        sum += p_c_u_new_vec_[tid](c, u);
+      }
+      p_c_u_(c, u) = sum / norm_sum;
     }
   }
 
 //#pragma omp parallel for
   for (uint32_t c = 0; c < nc_; ++c) {
+    double norm_sum = 0;
+    for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+      norm_sum += cnorm_vec_[tid](c);
+    }
     for (uint32_t t = 0; t < nt_; ++t) {
-      p_t_c_(t, c) = p_t_c_new_(t, c) / cnorm_(c);
+      double sum = 0;
+      for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+        sum += p_t_c_new_vec_[tid](t, c);
+      }
+      p_t_c_(t, c) = sum / norm_sum;
     }
   }
 
 //#pragma omp parallel for
   for (uint32_t t = 0; t < nt_; ++t) {
+    double norm_sum = 0;
+    for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+      norm_sum += tnorm_vec_[tid](t);
+    }
     for (uint32_t w = 0; w < nw_; ++w) {
-      p_w_t_(w, t) = p_w_t_new_(w, t) / tnorm_(t);
+      double sum = 0;
+      for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
+        sum += p_w_t_new_vec_[tid](w, t);
+      }
+      p_w_t_(w, t) = sum / norm_sum;
     }
   }
 }

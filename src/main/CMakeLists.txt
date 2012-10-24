@@ -5,4 +5,4 @@ add_executable(dataset_main dataset_main.cc)
 target_link_libraries(dataset_main toyml_topic glog gflags)
 
 add_executable(explsa_main explsa_main.cc)
-target_link_libraries(explsa_main toyml_topic glog gflags)
+target_link_libraries(explsa_main toyml_topic boost_thread glog gflags)
