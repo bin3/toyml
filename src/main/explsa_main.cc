@@ -19,7 +19,7 @@ DEFINE_string(dictpath, "../data/explsa/dict.dat", "output file of dictionary");
 DEFINE_string(celpath, "../data/explsa/cel.dat", "output file of celebrities");
 
 DEFINE_int32(topics, 10, "number of topics");
-DEFINE_int32(iterators, 100, "number of iterators");
+DEFINE_int32(iters, 100, "number of maximum iterations");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(em_log_interval, 1000, "EMStep log interval");
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
   toyml::ExPLSAOptions options;
   options.ntopics = FLAGS_topics;
-  options.niters = FLAGS_iterators;
+  options.niters = FLAGS_iters;
   options.eps = FLAGS_eps;
   options.log_interval = FLAGS_log_interval;
   options.save_interval = FLAGS_save_interval;

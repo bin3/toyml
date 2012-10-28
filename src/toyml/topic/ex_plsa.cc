@@ -125,13 +125,21 @@ bool ExPLSA::SaveTopics(const std::string& path) const {
 
     vec.clear();
     for (std::size_t c = 0; c < nc_; ++c) {
-      vec.push_back(ProbId(p_t_c_(t, c), c));
+      double p_c = 0;
+      for (std::size_t u = 0; u < nu_; ++u) {
+        p_c += p_c_u_(c, u) / nu_;
+        VLOG_IF(0, p_c > 1) << "p_c=" << p_c << ", p_c_u_=" << p_c_u_(c, u) << ", c=" << c << ", u=" << u;
+      }
+      double p_tc = p_c * p_t_c_(t, c);
+      VLOG_IF(0, p_tc > 1) << "p_tc=" << p_tc << ", p_c=" << p_c << ", p_t_c=" << p_t_c_(t, c);
+      vec.push_back(ProbId(p_tc, c));
     }
     std::sort(vec.begin(), vec.end(), std::greater<ProbId>());
     outf << "  Top " << opts_.topn << " celebrities:\n";
     for (std::size_t i = 0; i < vec.size() && i < opts_.topn; ++i) {
       std::string twitter_id = fdata_->Word(vec[i].second);
       outf << "\t" << twitter_id << "\t" << vec[i].first << "\n";
+      VLOG_IF(0, vec[i].first > 1) << "t=" << t << ", i=" << i << ", vec[i].first=" << vec[i].first;
     }
   }
 
