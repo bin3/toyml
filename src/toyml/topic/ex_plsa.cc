@@ -28,6 +28,7 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   ddata_ = &document_data;
   fdata_ = &followee_data;
 
+  lambada_ = opts_.lambada;
   nu_ = fdata_->DocSize();
   nc_ = fdata_->DictSize();
   nt_ = opts_.ntopics;
@@ -36,11 +37,13 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   p_c_u_.resize(nc_, nu_);
   p_t_c_.resize(nt_, nc_);
   p_w_t_.resize(nw_, nt_);
+  p_zuw_.resize(nu_, nw_);
+  p_w_b_.resize(nw_);
 
   p_c_u_new_.resize(nc_, nu_);
   p_t_c_new_.resize(nt_, nc_);
   p_w_t_new_.resize(nw_, nt_);
-//  p_ct_.resize(nc_, nt_);
+  p_zuw_new_.resize(nu_, nw_);
 
   unorm_.resize(nu_);
   cnorm_.resize(nc_);
@@ -179,7 +182,7 @@ double ExPLSA::LogLikelihood() {
         }
       }
       if (p_w_u > 0) {
-        lik += n * log(p_w_u);
+        lik += (1 - p_zuw_(u, w)) * n * log(p_w_u * lambada_) + p_zuw_(u, w) * log(p_w_b_(w) * (1 - lambada_));
       }
     }
   }
@@ -230,6 +233,33 @@ void ExPLSA::InitProb() {
       p_w_t_(w, t) /= norm;
     }
   }
+
+  for (std::size_t u = 0; u < nu_; ++u) {
+    norm = 0;
+    for (std::size_t w = 0; w < nw_; ++w) {
+      int r = std::rand() % kMod + 1;
+      p_zuw_(u, w) = r;
+      norm += r;
+    }
+    for (std::size_t w = 0; w < nw_; ++w) {
+      p_zuw_(u, w) /= norm;
+    }
+  }
+
+  std::size_t totalFreq = 0;
+  std::map<std::size_t, std::size_t> wordToFreq;
+  for (std::size_t i = 0; i < ddata_->DocSize(); ++i) {
+    const Document& doc = ddata_->Doc(i);
+    for (std::size_t j = 0; j < doc.Size(); ++j) {
+      std::size_t word = doc.Word(j);
+      std::size_t freq = doc.Freq(j);
+      wordToFreq[word] += freq;
+      totalFreq += freq;
+    }
+  }
+  for (std::map<std::size_t, std::size_t>::const_iterator it = wordToFreq.begin(); it != wordToFreq.end(); ++it) {
+    p_w_b_(it->first) = static_cast<double>(it->second) / totalFreq;
+  }
 }
 
 void ExPLSA::DoEM(std::size_t tid) {
@@ -243,11 +273,12 @@ void ExPLSA::DoEM(std::size_t tid) {
   cnorm_vec_[tid].clear();
   tnorm_vec_[tid].clear();
 
+  ublas::matrix<double> p_ct_(nc_, nt_, 0);
   for (uint32_t u = 0; (u = uid_++) < nu_; ) {
     VLOG_IF(3, u % opts_.em_log_interval == 0) << "user#" << u;
-    ublas::matrix<double> p_ct_(nc_, nt_, 0);
     const Document& doc = ddata_->Doc(u);
     const Document& fol = fdata_->Doc(u);
+    p_ct_.clear();
     for (uint32_t p = 0; p < doc.Size(); ++p) {
       uint32_t w = doc.Word(p);
       uint32_t n = doc.Freq(p);
@@ -267,7 +298,7 @@ void ExPLSA::DoEM(std::size_t tid) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
           p_ct_(c, t) /= norm;
-          double np = n * p_ct_(c, t);
+          double np = n * p_ct_(c, t) * (1 - p_zuw_(u, w));
           p_c_u_new_vec_[tid](c, u) += np;
           p_t_c_new_vec_[tid](t, c) += np;
           p_w_t_new_vec_[tid](w, t) += np;
@@ -276,6 +307,8 @@ void ExPLSA::DoEM(std::size_t tid) {
           tnorm_vec_[tid](t) += np;
         }
       }
+      double p_w_b = (1 - lambada_) * p_w_b_(w);
+      p_zuw_new_(u, w) = p_w_b / (lambada_ * norm + p_w_b);
     }
   }
 }
@@ -338,6 +371,8 @@ void ExPLSA::EMStep() {
       p_w_t_(w, t) = sum / norm_sum;
     }
   }
+
+  p_zuw_.swap(p_zuw_new_);
 }
 
 std::string ExPLSA::Path(const std::string& fname,
@@ -356,10 +391,10 @@ bool ExPLSA::SaveModel(const std::string& path, const ublas::matrix<double>& mat
     LOG(ERROR) << "Failed to save model to " << path;
     return false;
   }
-  outf << size1 << opts_.seperator << size2 << "\n";
-  for (std::size_t i = 0; i < size1; ++i) {
-    for (std::size_t j = 0; j < size2; ++j) {
-      outf << mat(i, j) << opts_.seperator;
+  outf << size2 << opts_.seperator << size1 << "\n";
+  for (std::size_t col = 0; col < size2; ++col) {
+    for (std::size_t row = 0; row < size1; ++row) {
+      outf << mat(row, col) << opts_.seperator;
     }
     outf << "\n";
   }

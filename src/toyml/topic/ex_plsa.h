@@ -28,6 +28,7 @@ namespace ublas = boost::numeric::ublas;
 struct ExPLSAOptions {
   std::size_t niters;
   std::size_t ntopics;  // number of topics
+  double lambada;       // for backgroud
   double eps;
   int log_interval;
   int save_interval;
@@ -42,7 +43,7 @@ struct ExPLSAOptions {
   std::string finalsuffix;
   std::string seperator;
   ExPLSAOptions() :
-      niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10),
+      niters(100), ntopics(100), lambada(0.2), eps(1e-3), log_interval(10), save_interval(10),
       em_log_interval(1000), threads(4), topn(10),
       datadir("./"), topic_path("topics.dat"), wtpath("word-topic-prob.dat"),
       tcpath("topic-cel-prob.dat"), cupath("cel-user-prob.dat"),
@@ -52,6 +53,7 @@ struct ExPLSAOptions {
     std::stringstream ss;
     ss << NAME_VAL_COMMA(niters);
     ss << NAME_VAL_COMMA(ntopics);
+    ss << NAME_VAL_COMMA(lambada);
     ss << NAME_VAL_COMMA(eps);
     ss << NAME_VAL_COMMA(log_interval);
     ss << NAME_VAL_COMMA(save_interval);
@@ -90,6 +92,7 @@ private:
   const Dataset* ddata_;  // document dataset
   const Dataset* fdata_;  // followee dataset whose format is similar like document dataset
 
+  double lambada_;   // for background
   std::size_t nu_;  // number of users
   std::size_t nc_;  // number of celebrities
   std::size_t nt_;  // number of topics
@@ -98,11 +101,13 @@ private:
   ublas::matrix<double> p_c_u_;          // p(c|u)
   ublas::matrix<double> p_t_c_;          // p(t|c)
   ublas::matrix<double> p_w_t_;          // p(w|t)
+  ublas::matrix<double> p_zuw_;           // p(Zuw=B)
+  ublas::vector<double> p_w_b_;           // p(p(w|B)
 
   ublas::matrix<double> p_c_u_new_;          // p(c|u)
   ublas::matrix<double> p_t_c_new_;          // p(t|c)
   ublas::matrix<double> p_w_t_new_;          // p(w|t)
-//  ublas::matrix<double> p_ct_;
+  ublas::matrix<double> p_zuw_new_;           // p(Zuw=B)
   ublas::vector<double> unorm_;
   ublas::vector<double> cnorm_;
   ublas::vector<double> tnorm_;
