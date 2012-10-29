@@ -182,7 +182,8 @@ double ExPLSA::LogLikelihood() {
         }
       }
       if (p_w_u > 0) {
-        lik += (1 - p_zuw_(u, w)) * n * log(p_w_u * lambada_) + p_zuw_(u, w) * log(p_w_b_(w) * (1 - lambada_));
+//        lik += ((1 - p_zuw_(u, w)) * log(p_w_u * lambada_) + p_zuw_(u, w) * log(p_w_b_(w) * (1 - lambada_))) * n;
+        lik += n * log(p_w_u * lambada_ + p_w_b_(w) * (1 - lambada_));
       }
     }
   }
