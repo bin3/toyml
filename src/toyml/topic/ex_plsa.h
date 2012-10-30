@@ -101,13 +101,11 @@ private:
   ublas::matrix<double> p_c_u_;          // p(c|u)
   ublas::matrix<double> p_t_c_;          // p(t|c)
   ublas::matrix<double> p_w_t_;          // p(w|t)
-  ublas::matrix<double> p_zuw_;           // p(Zuw=B)
   ublas::vector<double> p_w_b_;           // p(p(w|B)
 
   ublas::matrix<double> p_c_u_new_;          // p(c|u)
   ublas::matrix<double> p_t_c_new_;          // p(t|c)
   ublas::matrix<double> p_w_t_new_;          // p(w|t)
-  ublas::matrix<double> p_zuw_new_;           // p(Zuw=B)
   ublas::vector<double> unorm_;
   ublas::vector<double> cnorm_;
   ublas::vector<double> tnorm_;
