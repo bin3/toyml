@@ -14,6 +14,8 @@
 
 namespace toyml {
 
+static double kZeroEps = 1e-10;
+
 ExPLSA::~ExPLSA() {
 }
 
@@ -65,7 +67,7 @@ std::size_t ExPLSA::Train() {
   VLOG(0) << "[begin] L=" << std::setprecision(10) << pre_lik;
   std::size_t t = 0;
   for ( ; t < opts_.niters; ++t) {
-    LOG_EVERY_N(INFO, opts_.log_interval) << "Iterator#" << t;
+    LOG_EVERY_N(INFO, opts_.log_interval) << "Iteration#" << t;
     EMStep();
     if ((t + 1) % opts_.save_interval == 0) {
       SaveModel(t + 1);
@@ -127,12 +129,12 @@ bool ExPLSA::SaveTopics(const std::string& path) const {
     vec.clear();
     for (std::size_t c = 0; c < nc_; ++c) {
       double p_c = 0;
-//      for (std::size_t u = 0; u < nu_; ++u) {
-//        p_c += p_c_u_(c, u) / nu_;
-//        VLOG_IF(0, p_c > 1) << "p_c=" << p_c << ", p_c_u_=" << p_c_u_(c, u) << ", c=" << c << ", u=" << u;
-//      }
-//      double p_tc = p_c * p_t_c_(t, c);
-      double p_tc = p_t_c_(t, c);
+      for (std::size_t u = 0; u < nu_; ++u) {
+        p_c += p_c_u_(c, u) / nu_;
+        VLOG_IF(0, p_c > 1) << "p_c=" << p_c << ", p_c_u_=" << p_c_u_(c, u) << ", c=" << c << ", u=" << u;
+      }
+      double p_tc = p_c * p_t_c_(t, c);
+//      double p_tc = p_t_c_(t, c);
       VLOG_IF(0, p_tc > 1) << "[ERROR] p_tc=" << p_tc << ", p_c=" << p_c << ", p_t_c=" << p_t_c_(t, c);
       vec.push_back(ProbId(p_tc, c));
     }
@@ -284,6 +286,7 @@ void ExPLSA::DoEM(std::size_t tid) {
       }
       double p_w_b = (1 - lambada_) * p_w_b_(w);
       double p_zuw = p_w_b / (lambada_ * norm + p_w_b);
+      VLOG_IF(2, p_zuw < 1e-5) << "[p_zuw < 1e-5] p_zuw=" << p_zuw;
 
       // Mstep
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
@@ -328,7 +331,11 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_c_u_new_vec_[tid](c, u);
       }
-      p_c_u_(c, u) = sum / norm_sum;
+      if (sum > kZeroEps) {
+        p_c_u_(c, u) = sum / norm_sum;
+      } else {
+        p_c_u_(c, u) = 0;
+      }
     }
   }
 
@@ -343,7 +350,11 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_t_c_new_vec_[tid](t, c);
       }
-      p_t_c_(t, c) = sum / norm_sum;
+      if (sum > kZeroEps) {
+        p_t_c_(t, c) = sum / norm_sum;
+      } else {
+        p_t_c_(t, c) = 0;
+      }
     }
   }
 
@@ -358,7 +369,11 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_w_t_new_vec_[tid](w, t);
       }
-      p_w_t_(w, t) = sum / norm_sum;
+      if (sum > kZeroEps) {
+        p_w_t_(w, t) = sum / norm_sum;
+      } else {
+        p_w_t_(w, t) = 0;
+      }
     }
   }
 }
