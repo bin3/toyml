@@ -36,7 +36,8 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   nt_ = opts_.ntopics;
   nw_ = ddata_->DictSize();
 
-  p_c_u_.resize(nc_, nu_);
+//  p_c_u_.resize(nc_, nu_);
+  p_c_u_ = ublas::matrix<double>(nc_, nu_, 0);  // filled value of double is not 0.0, so we should set it explicitly.
   p_t_c_.resize(nt_, nc_);
   p_w_t_.resize(nw_, nt_);
   p_w_b_.resize(nw_);
@@ -49,7 +50,7 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   cnorm_.resize(nc_);
   tnorm_.resize(nt_);
 
-  p_c_u_new_vec_.resize(opts_.threads, ublas::matrix<double>(nc_, nu_));
+  p_c_u_new_vec_.resize(opts_.threads, ublas::matrix<double>(nc_, nu_, 0));
   p_t_c_new_vec_.resize(opts_.threads, ublas::matrix<double>(nt_, nc_));
   p_w_t_new_vec_.resize(opts_.threads, ublas::matrix<double>(nw_, nt_));
   p_ct_vec_.resize(opts_.threads, ublas::matrix<double>(nc_, nt_));
@@ -286,7 +287,7 @@ void ExPLSA::DoEM(std::size_t tid) {
       }
       double p_w_b = (1 - lambda_) * p_w_b_(w);
       double p_zuw = p_w_b / (lambda_ * norm + p_w_b);
-      VLOG_IF(2, p_zuw < 1e-5) << "[p_zuw < 1e-5] p_zuw=" << p_zuw;
+      VLOG_IF(0, p_zuw > 0.99999) << "[p_zuw > 0.99999] p_zuw=" << p_zuw;
 
       // Mstep
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
