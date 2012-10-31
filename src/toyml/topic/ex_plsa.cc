@@ -30,7 +30,7 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   ddata_ = &document_data;
   fdata_ = &followee_data;
 
-  lambada_ = opts_.lambada;
+  lambda_ = opts_.lambda;
   nu_ = fdata_->DocSize();
   nc_ = fdata_->DictSize();
   nt_ = opts_.ntopics;
@@ -184,7 +184,7 @@ double ExPLSA::LogLikelihood() {
       }
       if (p_w_u > 0) {
 //        lik += ((1 - p_zuw_(u, w)) * log(p_w_u * lambada_) + p_zuw_(u, w) * log(p_w_b_(w) * (1 - lambada_))) * n;
-        lik += n * log(p_w_u * lambada_ + p_w_b_(w) * (1 - lambada_));
+        lik += n * log(p_w_u * lambda_ + p_w_b_(w) * (1 - lambda_));
       }
     }
   }
@@ -284,8 +284,8 @@ void ExPLSA::DoEM(std::size_t tid) {
           norm += p_wtc_u;
         }
       }
-      double p_w_b = (1 - lambada_) * p_w_b_(w);
-      double p_zuw = p_w_b / (lambada_ * norm + p_w_b);
+      double p_w_b = (1 - lambda_) * p_w_b_(w);
+      double p_zuw = p_w_b / (lambda_ * norm + p_w_b);
       VLOG_IF(2, p_zuw < 1e-5) << "[p_zuw < 1e-5] p_zuw=" << p_zuw;
 
       // Mstep

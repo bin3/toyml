@@ -18,6 +18,6 @@ cd ../bin
 
 #./explsa_main --v=1 --save_interval=1 --iters=1
 #./explsa_main --v=4 --docpath=../data/explsa/doc.dat --followeepath=../data/explsa/followee.dat
-#./explsa_main --v=1 --lambada=1
-#./explsa_main --v=1 --save_interval=1 --threads=1 --lambada=1
-./explsa_main --v=2 --save_interval=40 --lambada=0.8
+#./explsa_main --v=1 --lambda=1
+#./explsa_main --v=1 --save_interval=1 --threads=1 --lambda=1
+./explsa_main --v=2 --save_interval=40 --lambda=0.8

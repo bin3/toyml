@@ -21,7 +21,7 @@ DEFINE_string(celpath, "../data/explsa/cel.dat", "output file of celebrities");
 DEFINE_int32(topics, 10, "number of topics");
 DEFINE_int32(iters, 100, "number of maximum iterations");
 DEFINE_double(eps, 0.1, "EPS");
-DEFINE_double(lambada, 0.2, "for background");
+DEFINE_double(lambda, 0.2, "for background");
 DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(em_log_interval, 1000, "EMStep log interval");
 DEFINE_int32(save_interval, 40, "save interval");
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
   toyml::ExPLSAOptions options;
   options.ntopics = FLAGS_topics;
   options.niters = FLAGS_iters;
-  options.lambada = FLAGS_lambada;
+  options.lambda = FLAGS_lambda;
   options.eps = FLAGS_eps;
   options.log_interval = FLAGS_log_interval;
   options.save_interval = FLAGS_save_interval;
