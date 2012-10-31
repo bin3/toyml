@@ -39,20 +39,22 @@ struct PLSAOptions {
   std::string wzpath;
   std::string finalsuffix;
   std::string seperator;
+  bool random;
   PLSAOptions() :
       niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10), topn(20),
-      datadir("./"), topic_path("topic-words.dat"), tpath("topic-prob.dat"),
+      datadir("./"), topic_path("topics.dat"), tpath("topic-prob.dat"),
       dzpath("doc-topic-prob.dat"), wzpath("word-topic-prob.dat"),
-      finalsuffix("final"), seperator("\t") {
+      finalsuffix("final"), seperator("\t"), random(true) {
   }
   std::string ToString() const {
     std::stringstream ss;
-    ss << NAME_VAL(niters) << ", ";
-    ss << NAME_VAL(ntopics) << ", ";
-    ss << NAME_VAL(eps) << ", ";
-    ss << NAME_VAL(log_interval) << ", ";
-    ss << NAME_VAL(save_interval) << ", ";
-    ss << NAME_VAL(topn) << ", ";
+    ss << NAME_VAL_COMMA(niters);
+    ss << NAME_VAL_COMMA(ntopics);
+    ss << NAME_VAL_COMMA(eps);
+    ss << NAME_VAL_COMMA(log_interval);
+    ss << NAME_VAL_COMMA(save_interval);
+    ss << NAME_VAL_COMMA(topn);
+    ss << NAME_VAL_COMMA(random);
     ss << NAME_VAL(datadir);
     return ss.str();
   }
@@ -72,8 +74,8 @@ public:
   bool SaveTModel(const std::string& path) const;
   bool SaveDZModel(const std::string& path) const;
   bool SaveWZModel(const std::string& path) const;
-private:
-  PLSAOptions opts_;
+protected:
+  PLSAOptions options_;
   const Dataset* dataset_;
 
   std::size_t nd_;  // number of documents
@@ -92,11 +94,11 @@ private:
   ublas::vector<double> dnorm_;
   ublas::vector<double> wnorm_;
 
-  double LogLikelihood();
-  void InitProb();
+  virtual double LogLikelihood();
+  virtual void InitProb();
+  virtual void EMStep();
   void Mstep();
   void Estep();
-  void EMStep();
 
   std::string Path(const std::string& fname, const std::string& suffix) const;
 };

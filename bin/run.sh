@@ -12,7 +12,7 @@ cd ../bin
 
 #./dataset_main --v=1 --docpath=../data/topic/author_docs.dat.clean
 
-#./plsa_main --v=1
+#./plsa_main --v=1 --random=0
 #./plsa_main --v=1 --docpath=../data/topic/tweet_docs.dat.1k
 #./plsa_main --v=1 --docpath=../data/topic/author_docs.dat.clean
 
@@ -21,4 +21,7 @@ cd ../bin
 #./explsa_main --v=1 --lambda=1
 #./explsa_main --v=1 --save_interval=1 --threads=1 --lambda=1
 #./explsa_main --v=2 --save_interval=40 --lambda=0.8
-./explsa_main --v=2 --save_interval=40 --lambda=1
+#./explsa_main --v=2 --save_interval=40 --lambda=1
+
+#./plsa_main --v=1 --random=0
+./background_plsa_main --v=2 --random=0 --lambda=0.1

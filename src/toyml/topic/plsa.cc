@@ -21,12 +21,12 @@ PLSA::~PLSA() {
 }
 
 bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
-  opts_ = options;
+  options_ = options;
   dataset_ = &dataset;
 
   nd_ = dataset.DocSize();
   nw_ = dataset.DictSize();
-  nz_ = opts_.ntopics;
+  nz_ = options_.ntopics;
   nr_ = dataset.TotalWordOccurs();
 
   p_z_.resize(nz_);
@@ -49,27 +49,27 @@ std::size_t PLSA::Train() {
   double cur_lik = 0;
   VLOG(0) << "[begin] L=" << std::setprecision(10) << pre_lik;
   std::size_t t = 0;
-  for ( ; t < opts_.niters; ++t) {
-    LOG_EVERY_N(INFO, opts_.log_interval) << "Iterator#" << t;
+  for ( ; t < options_.niters; ++t) {
+    LOG_EVERY_N(INFO, options_.log_interval) << "Iteration#" << t;
 //    Estep();
 //    Mstep();
     EMStep();
-    if ((t + 1) % opts_.save_interval == 0) {
+    if ((t + 1) % options_.save_interval == 0) {
       SaveModel(t + 1);
     }
     cur_lik = LogLikelihood();
     double diff_lik = cur_lik - pre_lik;
-    LOG_EVERY_N(INFO, opts_.log_interval) << std::setprecision(10) << "L=" << cur_lik << ", diff=" << diff_lik;
+    LOG_EVERY_N(INFO, options_.log_interval) << std::setprecision(10) << "L=" << cur_lik << ", diff=" << diff_lik;
     CHECK(diff_lik >= 0.0);
-    if (diff_lik < opts_.eps) {
-      VLOG(0) << "[break] Iterator#" << t << " diff=" << diff_lik << ", eps=" << opts_.eps;
+    if (diff_lik < options_.eps) {
+      VLOG(0) << "[break] Iteratoration#" << t << " diff=" << diff_lik << ", eps=" << options_.eps;
       break;
     }
     pre_lik = cur_lik;
   }
   VLOG(0) << "[end] L=" << std::setprecision(10) << cur_lik;
-  SaveModel(opts_.finalsuffix);
-  return std::min(t + 1, opts_.niters);
+  SaveModel(options_.finalsuffix);
+  return std::min(t + 1, options_.niters);
 }
 
 bool PLSA::SaveModel(int no) const {
@@ -80,10 +80,10 @@ bool PLSA::SaveModel(int no) const {
 
 bool PLSA::SaveModel(const std::string& suffix) const {
   VLOG(1) << "SaveModel suffix=" << suffix;
-  bool ret = SaveTopics(Path(opts_.topic_path, suffix));
-  ret &= SaveTModel(Path(opts_.tpath, suffix));
-  ret &= SaveDZModel(Path(opts_.dzpath, suffix));
-  ret &= SaveWZModel(Path(opts_.wzpath, suffix));
+  bool ret = SaveTopics(Path(options_.topic_path, suffix));
+  ret &= SaveTModel(Path(options_.tpath, suffix));
+  ret &= SaveDZModel(Path(options_.dzpath, suffix));
+  ret &= SaveWZModel(Path(options_.wzpath, suffix));
   return ret;
 }
 
@@ -106,7 +106,7 @@ bool PLSA::SaveTopics(const std::string& path) const {
     std::sort(vec.begin(), vec.end(), std::greater<ProbWord>());
 
     outf << "Topic #" << z << ":\n";
-    for (std::size_t i = 0; i < vec.size() && i < opts_.topn; ++i) {
+    for (std::size_t i = 0; i < vec.size() && i < options_.topn; ++i) {
       outf << "\t" << dataset_->Word(vec[i].second) << "\t" << vec[i].first << "\n";
     }
   }
@@ -137,10 +137,10 @@ bool PLSA::SaveDZModel(const std::string& path) const {
     LOG(ERROR) << "Failed to save doc-topic model to " << path;
     return false;
   }
-  outf << nd_ << opts_.seperator << nz_ << "\n";
+  outf << nd_ << options_.seperator << nz_ << "\n";
   for (std::size_t d = 0; d < nd_; ++d) {
     for (std::size_t z = 0; z < nz_; ++z) {
-      outf << p_d_z_(d, z) << opts_.seperator;
+      outf << p_d_z_(d, z) << options_.seperator;
     }
     outf << "\n";
   }
@@ -155,10 +155,10 @@ bool PLSA::SaveWZModel(const std::string& path) const {
     LOG(ERROR) << "Failed to save word-topic model to " << path;
     return false;
   }
-  outf << nw_ << opts_.seperator << nz_ << "\n";
+  outf << nw_ << options_.seperator << nz_ << "\n";
   for (std::size_t w = 0; w < nw_; ++w) {
     for (std::size_t z = 0; z < nz_; ++z) {
-      outf << p_w_z_(w, z) << opts_.seperator;
+      outf << p_w_z_(w, z) << options_.seperator;
     }
     outf << "\n";
   }
@@ -190,7 +190,11 @@ double PLSA::LogLikelihood() {
 
 void PLSA::InitProb() {
   static int kMod = 10000;
-  std::srand(std::time(NULL));
+  if (options_.random) {
+    std::srand(std::time(NULL));
+  } else {
+    std::srand(0);
+  }
 
   double norm = 0;
   for (std::size_t z = 0; z < nz_; ++z) {
@@ -280,9 +284,9 @@ void PLSA::EMStep() {
 
 std::string PLSA::Path(const std::string& fname, const std::string& suffix) const {
   if (suffix.length() == 0) {
-    return opts_.datadir + "/" + fname;
+    return options_.datadir + "/" + fname;
   } else {
-    return opts_.datadir + "/" + fname + "." + suffix;
+    return options_.datadir + "/" + fname + "." + suffix;
   }
 }
 

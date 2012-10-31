@@ -66,4 +66,23 @@ bool Dataset::Load(const std::string& fname) {
   return true;
 }
 
+bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
+  std::size_t totalFreq = 0;
+  std::map<std::size_t, std::size_t> wordToFreq;
+  for (std::size_t i = 0; i < DocSize(); ++i) {
+    const Document& doc = Doc(i);
+    for (std::size_t j = 0; j < doc.Size(); ++j) {
+      std::size_t word = doc.Word(j);
+      std::size_t freq = doc.Freq(j);
+      wordToFreq[word] += freq;
+      totalFreq += freq;
+    }
+  }
+  probs.resize(wordToFreq.size());
+  for (std::map<std::size_t, std::size_t>::const_iterator it = wordToFreq.begin(); it != wordToFreq.end(); ++it) {
+    probs(it->first) = static_cast<double>(it->second) / totalFreq;
+  }
+  return true;
+}
+
 } /* namespace toyml */

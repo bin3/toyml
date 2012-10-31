@@ -14,8 +14,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <boost/numeric/ublas/matrix.hpp>
 
 namespace toyml {
+
+namespace ublas = boost::numeric::ublas;
 
 class Document {
 public:
@@ -135,6 +138,7 @@ public:
   std::string Word(uint32_t idx) const {
     return words_[idx];
   }
+  bool CalcWordProb(ublas::vector<double>& probs) const;
   void Clear() {
     word2idx_.clear();
     words_.clear();

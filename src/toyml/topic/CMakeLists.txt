@@ -4,6 +4,7 @@ set(srcs
   plsa.cc
   ex_dataset.cc
   ex_plsa.cc
+  background_plsa.cc
 )
 
 add_library(${lib} ${srcs})
