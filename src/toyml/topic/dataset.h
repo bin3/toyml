@@ -139,19 +139,29 @@ public:
     return words_[idx];
   }
   bool CalcWordProb(ublas::vector<double>& probs) const;
+  bool SaveWordProb(const std::string& path) const;
+  bool SaveTopWordProb(const std::string& path, std::size_t topn) const;
   void Clear() {
     word2idx_.clear();
     words_.clear();
     docs_.clear();
     woccurs_ = 0;
+    idx2freq_done_ = false;
   }
 protected:
   typedef std::map<std::string, uint32_t> Word2Idx;
+  typedef std::map<std::size_t, std::size_t> Idx2Freq;
+
   Word2Idx word2idx_;
   std::vector<std::string> words_;
   std::vector<Document> docs_;
   std::vector<PostingList> posts_;
   mutable std::size_t woccurs_;
+
+  mutable Idx2Freq idx2freq_;
+  mutable bool idx2freq_done_;
+
+  bool CalcWordProb() const;
 };
 
 } /* namespace toyml */

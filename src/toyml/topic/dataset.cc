@@ -15,7 +15,7 @@ namespace toyml {
 
 static const std::string kSeperator = " \t\r\n";
 
-Dataset::Dataset(): woccurs_(0) {
+Dataset::Dataset(): woccurs_(0), idx2freq_done_(false) {
 }
 
 Dataset::~Dataset() {
@@ -66,23 +66,81 @@ bool Dataset::Load(const std::string& fname) {
   return true;
 }
 
-bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
-  std::size_t totalFreq = 0;
-  std::map<std::size_t, std::size_t> wordToFreq;
+
+bool Dataset::CalcWordProb() const {
+  if (idx2freq_done_) return true;
+  idx2freq_done_ = true;
+  idx2freq_.clear();
+  std::size_t total_freq = 0;
   for (std::size_t i = 0; i < DocSize(); ++i) {
     const Document& doc = Doc(i);
     for (std::size_t j = 0; j < doc.Size(); ++j) {
       std::size_t word = doc.Word(j);
       std::size_t freq = doc.Freq(j);
-      wordToFreq[word] += freq;
-      totalFreq += freq;
+      idx2freq_[word] += freq;
+      total_freq += freq;
     }
-  }
-  probs.resize(wordToFreq.size());
-  for (std::map<std::size_t, std::size_t>::const_iterator it = wordToFreq.begin(); it != wordToFreq.end(); ++it) {
-    probs(it->first) = static_cast<double>(it->second) / totalFreq;
   }
   return true;
 }
+
+bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
+  if (!CalcWordProb()) {
+    return false;
+  }
+  probs.resize(idx2freq_.size());
+  for (Idx2Freq::const_iterator it = idx2freq_.begin(); it != idx2freq_.end(); ++it) {
+    probs(it->first) = static_cast<double>(it->second) / TotalWordOccurs();
+  }
+  return true;
+}
+
+bool Dataset::SaveWordProb(const std::string& path) const {
+  std::ofstream outf(path.c_str());
+  if (!outf) {
+    return false;
+  }
+  ublas::vector<double> probs;
+  if (!CalcWordProb(probs)) {
+    return false;
+  }
+
+  outf << DictSize() << "\n";
+  for (Word2Idx::const_iterator it = word2idx_.begin(); it != word2idx_.end(); ++it) {
+    const std::string& word = it->first;
+    uint32_t idx = it->second;
+    double prob = probs(idx);
+    outf << word << "\t" << idx << "\t" << prob << "\n";
+  }
+  outf.close();
+  return true;
+}
+
+bool Dataset::SaveTopWordProb(const std::string& path, std::size_t topn) const {
+  std::ofstream outf(path.c_str());
+  if (!outf) {
+    return false;
+  }
+  if (!CalcWordProb()) {
+    return true;
+  }
+  typedef std::pair<std::size_t, std::size_t> FreqIdx;
+  std::vector<FreqIdx> freq_idx_vec;
+  for (Idx2Freq::const_iterator it = idx2freq_.begin(); it != idx2freq_.end(); ++it) {
+    freq_idx_vec.push_back(FreqIdx(it->second, it->first));
+  }
+  std::partial_sort(freq_idx_vec.begin(), freq_idx_vec.begin() + topn, freq_idx_vec.end(), std::greater<FreqIdx>());
+  outf << topn << "\n";
+  for (std::size_t i = 0; i < freq_idx_vec.size() && i < topn; ++i) {
+    std::size_t freq = freq_idx_vec[i].first;
+    std::size_t idx = freq_idx_vec[i].second;
+    const std::string& word = Word(idx);
+    double prob = static_cast<double>(freq) / TotalWordOccurs();
+    outf << word << "\t" << idx << "\t" << prob << "\n";
+  }
+  outf.close();
+  return true;
+}
+
 
 } /* namespace toyml */

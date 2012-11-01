@@ -9,7 +9,7 @@
 
 namespace toyml {
 
-BackgroundPLSA::BackgroundPLSA(): lambda_(0) {
+BackgroundPLSA::BackgroundPLSA(): lambda_(0), delta_(1e-3) {
 }
 
 BackgroundPLSA::~BackgroundPLSA() {
@@ -22,6 +22,7 @@ bool BackgroundPLSA::Init(const BackgroundPLSAOptions& options, const Dataset& d
   }
   boptions_ = options;
   lambda_ = options.lambda;
+  delta_ = options.delta / dataset.TotalWordOccurs();
   return PLSA::Init(options, dataset);
 }
 
@@ -85,7 +86,7 @@ void BackgroundPLSA::EMStep() {
       // Mstep
       for (uint32_t z = 0; z < nz_; ++z) {
 //        double np = n * p_z_dw_(z);
-        double np = n * (1 - p_b_dw) * p_z_dw_(z);
+        double np = n * (1 - p_b_dw) * p_z_dw_(z) + delta_;
         p_d_z_new_(d, z) += np;
         p_w_z_new_(w, z) += np;
         p_z_new_(z) += np;

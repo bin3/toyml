@@ -17,11 +17,15 @@ DECLARE_int32(stderrthreshold);
 
 DEFINE_string(docpath, "../data/bplsa/doc.dat", "input file of documents");
 DEFINE_string(dictpath, "../data/bplsa/dict.dat", "output file of dictionary");
+DEFINE_string(wprobpath, "../data/bplsa/wprob.dat", "output file of word probabilities");
+DEFINE_string(top_wprobpath, "../data/bplsa/top_wprob.dat", "output file of top word probabilities");
+DEFINE_int32(topn_wprob, 100, "topn of word probabilities");
 
 DEFINE_int32(topics, 30, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_double(lambda, 0.8, "weight of background model");
+DEFINE_double(delta, 1e-3, "Delta added to loglikelihood");
 DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(save_interval, 40, "save interval");
 DEFINE_string(datadir, "../data/bplsa/", "output data directory");
@@ -39,6 +43,8 @@ int main(int argc, char **argv) {
   CHECK(dataset.Load(FLAGS_docpath)) << "Failed to load file " << FLAGS_docpath;
   VLOG(0) << "docpath=" << FLAGS_docpath;
   CHECK(dataset.SaveDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
+  CHECK(dataset.SaveWordProb(FLAGS_wprobpath)) << "Failed to save word probabilities file " << FLAGS_wprobpath;
+  CHECK(dataset.SaveTopWordProb(FLAGS_top_wprobpath, FLAGS_topn_wprob)) << "Failed to save top word probabilities file " << FLAGS_top_wprobpath;
   VLOG(0) << "dataset.StatString: " << dataset.StatString();
   VLOG(4) << "dataset.Doc(0): " << dataset.Doc(0).ToString();
 
@@ -47,6 +53,7 @@ int main(int argc, char **argv) {
   options.niters = FLAGS_iterators;
   options.eps = FLAGS_eps;
   options.lambda = FLAGS_lambda;
+  options.delta = FLAGS_delta;
   options.log_interval = FLAGS_log_interval;
   options.save_interval = FLAGS_save_interval;
   options.datadir = FLAGS_datadir;
