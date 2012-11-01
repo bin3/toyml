@@ -87,18 +87,16 @@ protected:
   ublas::matrix<double> p_d_z_;        // p(d|z)
   ublas::matrix<double> p_w_z_;        // p(w|z)
 
+  double znorm_;
   ublas::vector<double> p_z_new_;
   ublas::matrix<double> p_d_z_new_;
   ublas::matrix<double> p_w_z_new_;
   ublas::vector<double> p_z_dw_;
-  ublas::vector<double> dnorm_;
-  ublas::vector<double> wnorm_;
 
   virtual double LogLikelihood();
   virtual void InitProb();
   virtual void EMStep();
-  void Mstep();
-  void Estep();
+  virtual void Normalize();
 
   std::string Path(const std::string& fname, const std::string& suffix) const;
 };

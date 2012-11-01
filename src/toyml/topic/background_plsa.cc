@@ -56,10 +56,8 @@ void BackgroundPLSA::EMStep() {
   p_w_z_new_.clear();
 
   p_z_dw_.clear();
-  dnorm_.clear();
-  wnorm_.clear();
 
-  double znorm = 0;
+  znorm_ = 0;
   for (uint32_t d = 0; d < nd_; ++d) {
     const Document& doc = dataset_->Doc(d);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
@@ -75,43 +73,22 @@ void BackgroundPLSA::EMStep() {
       for (uint32_t z = 0; z < nz_; ++z) {
         p_z_dw_(z) /= norm;
       }
-      double tmp = lambda_ * p_w_b_(w);
-      double p_dwb = tmp / (tmp + (1 - lambda_) * norm);
+      double p_w_b = lambda_ * p_w_b_(w);
+      double p_b_dw = p_w_b / (p_w_b + (1 - lambda_) * norm);
+      VLOG_EVERY_N(0, 1000) << "#" << google::COUNTER << " p_w_b=" << p_w_b << ", norm=" << norm << ", p_dwb=" << p_b_dw;
       // Mstep
       for (uint32_t z = 0; z < nz_; ++z) {
 //        double np = n * p_z_dw_(z);
-        double np = n * (1 - p_dwb) * p_z_dw_(z);
+        double np = n * (1 - p_b_dw) * p_z_dw_(z);
         p_d_z_new_(d, z) += np;
         p_w_z_new_(w, z) += np;
         p_z_new_(z) += np;
-        dnorm_(z) += np;
-        wnorm_(z) += np;
-        znorm += np;
+        znorm_ += np;
       }
     }
   }
-  // normalize
-  for (uint32_t z = 0; z < nz_; ++z) {
-    for (uint32_t d = 0; d < nd_; ++d) {
-      if (dnorm_(z) > 0) {
-        p_d_z_(d, z) = p_d_z_new_(d, z) / dnorm_(z);
-      } else {
-        p_d_z_(d, z) = 0;
-      }
-    }
-    for (uint32_t w = 0; w < nw_; ++w) {
-      if (wnorm_(z) > 0) {
-        p_w_z_(w, z) = p_w_z_new_(w, z) / wnorm_(z);
-      } else {
-        p_w_z_(w, z) = 0;
-      }
-    }
-    if (znorm > 0) {
-      p_z_(z) = p_z_new_(z) / znorm;
-    } else {
-      p_z_(z) = 0;
-    }
-  }
+
+  Normalize();
 }
 
 } /* namespace toyml */
