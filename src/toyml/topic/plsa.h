@@ -41,7 +41,7 @@ struct PLSAOptions {
   std::string seperator;
   bool random;
   PLSAOptions() :
-      niters(100), ntopics(100), eps(1e-3), log_interval(10), save_interval(10), topn(20),
+      niters(100), ntopics(30), eps(1e-3), log_interval(10), save_interval(10), topn(20),
       datadir("./"), topic_path("topics.dat"), tpath("topic-prob.dat"),
       dzpath("doc-topic-prob.dat"), wzpath("word-topic-prob.dat"),
       finalsuffix("final"), seperator("\t"), random(true) {
@@ -92,6 +92,8 @@ protected:
   ublas::matrix<double> p_d_z_new_;
   ublas::matrix<double> p_w_z_new_;
   ublas::vector<double> p_z_dw_;
+
+  std::size_t iter_;    // the current iteration
 
   virtual double LogLikelihood();
   virtual void InitProb();

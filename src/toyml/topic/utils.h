@@ -12,6 +12,8 @@ namespace toyml {
 
 #define NAME_VAL(v) #v << "=" << v
 #define NAME_VAL_COMMA(v) #v << "=" << v << ", "
+#define NV_ NAME_VAL
+#define NVC_ NAME_VAL_COMMA
 
 /**
  * @brief 

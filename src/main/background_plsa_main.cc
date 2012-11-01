@@ -15,10 +15,10 @@
 DECLARE_int32(stderrthreshold);
 //DECLARE_string(log_dir);
 
-DEFINE_string(docpath, "../data/plsa/doc.dat", "input file of documents");
+DEFINE_string(docpath, "../data/bplsa/doc.dat", "input file of documents");
 DEFINE_string(dictpath, "../data/bplsa/dict.dat", "output file of dictionary");
 
-DEFINE_int32(topics, 100, "number of topics");
+DEFINE_int32(topics, 30, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_double(lambda, 0.8, "weight of background model");

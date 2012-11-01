@@ -16,6 +16,10 @@ BackgroundPLSA::~BackgroundPLSA() {
 }
 
 bool BackgroundPLSA::Init(const BackgroundPLSAOptions& options, const Dataset& dataset) {
+  if (options.lambda < 0 || options.lambda > 1.0) {
+    LOG(ERROR) << "lambda=" << options.lambda << " which should be [0, 1]";
+    return false;
+  }
   boptions_ = options;
   lambda_ = options.lambda;
   return PLSA::Init(options, dataset);
@@ -70,12 +74,14 @@ void BackgroundPLSA::EMStep() {
         p_z_dw_(z) = p_zdw;
         norm += p_zdw;
       }
+//      CHECK(norm > 0) << "Iter#" << iter_ << " norm=" << norm << ", d=" << d << ", w=" << w << ", SaveModel=" << SaveModel("debug");
       for (uint32_t z = 0; z < nz_; ++z) {
         p_z_dw_(z) /= norm;
       }
       double p_w_b = lambda_ * p_w_b_(w);
       double p_b_dw = p_w_b / (p_w_b + (1 - lambda_) * norm);
-      VLOG_EVERY_N(0, 1000) << "#" << google::COUNTER << " p_w_b=" << p_w_b << ", norm=" << norm << ", p_dwb=" << p_b_dw;
+//      VLOG_EVERY_N(0, 1000) << "#" << google::COUNTER << " p_w_b=" << p_w_b << ", norm=" << norm << ", p_dwb=" << p_b_dw;
+//      VLOG_IF(0, w == 14066) << "Iter#" << iter_ << " " << NVC_(d) << NVC_(w) << NVC_(norm) << NVC_(p_w_b) << NV_(p_b_dw);
       // Mstep
       for (uint32_t z = 0; z < nz_; ++z) {
 //        double np = n * p_z_dw_(z);

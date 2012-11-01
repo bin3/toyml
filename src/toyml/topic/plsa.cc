@@ -46,28 +46,25 @@ std::size_t PLSA::Train() {
   double pre_lik = LogLikelihood();
   double cur_lik = 0;
   VLOG(0) << "[begin] L=" << std::setprecision(10) << pre_lik;
-  std::size_t t = 0;
-  for ( ; t < options_.niters; ++t) {
-    LOG_EVERY_N(INFO, options_.log_interval) << "Iteration#" << t;
-//    Estep();
-//    Mstep();
+  for (iter_ = 0 ; iter_ < options_.niters; ++iter_) {
+    LOG_EVERY_N(INFO, options_.log_interval) << "Iteration#" << iter_;
     EMStep();
-    if ((t + 1) % options_.save_interval == 0) {
-      SaveModel(t + 1);
+    if ((iter_ + 1) % options_.save_interval == 0) {
+      SaveModel(iter_ + 1);
     }
     cur_lik = LogLikelihood();
     double diff_lik = cur_lik - pre_lik;
     LOG_EVERY_N(INFO, options_.log_interval) << std::setprecision(10) << "L=" << cur_lik << ", diff=" << diff_lik;
     CHECK(diff_lik >= 0.0);
     if (diff_lik < options_.eps) {
-      VLOG(0) << "[break] Iteration#" << t << " diff=" << diff_lik << ", eps=" << options_.eps;
+      VLOG(0) << "[break] Iteration#" << iter_ << " diff=" << diff_lik << ", eps=" << options_.eps;
       break;
     }
     pre_lik = cur_lik;
   }
   VLOG(0) << "[end] L=" << std::setprecision(10) << cur_lik;
   SaveModel(options_.finalsuffix);
-  return std::min(t + 1, options_.niters);
+  return std::min(iter_ + 1, options_.niters);
 }
 
 bool PLSA::SaveModel(int no) const {
@@ -283,6 +280,7 @@ void PLSA::Normalize() {
       } else {
         p_w_z_(w, z) = 0;
       }
+//      CHECK(p_w_z_(w, z) > 0) << "Iter#" << iter_ << " " << NVC_(z) << NVC_(w) << NVC_(p_w_z_new_(w, z)) << NV_(p_z_new_(z));
     }
     if (znorm_ > 0) {
       p_z_(z) = p_z_new_(z) / znorm_;

@@ -18,7 +18,7 @@ DECLARE_int32(stderrthreshold);
 DEFINE_string(docpath, "../data/plsa/doc.dat", "input file of documents");
 DEFINE_string(dictpath, "../data/plsa/dict.dat", "output file of dictionary");
 
-DEFINE_int32(topics, 100, "number of topics");
+DEFINE_int32(topics, 30, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_int32(log_interval, 1, "log interval");
