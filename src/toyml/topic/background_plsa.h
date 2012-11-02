@@ -16,7 +16,7 @@ struct BackgroundPLSAOptions: public PLSAOptions {
   double lambda;    // weight of background model
   double delta;     // Added to loglikelyhood
 
-  BackgroundPLSAOptions(): PLSAOptions::PLSAOptions(), lambda(0), delta(1e-3) {}
+  BackgroundPLSAOptions(): PLSAOptions::PLSAOptions(), lambda(0.8), delta(0.1) {}
   std::string ToString() const {
     std::stringstream ss;
     ss << NVC_(lambda) << NVC_(delta);
@@ -38,7 +38,7 @@ protected:
   BackgroundPLSAOptions boptions_;
   double lambda_;
   double delta_;
-  ublas::vector<double> p_w_b_;           // p(p(w|B)
+  ublas::vector<double> p_w_b_;           // p(w|B)
 
   double LogLikelihood();
   void InitProb();

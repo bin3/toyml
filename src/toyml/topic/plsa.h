@@ -34,16 +34,15 @@ struct PLSAOptions {
   std::size_t topn;
   std::string datadir;
   std::string topic_path;
-  std::string tpath;
-  std::string dzpath;
+  std::string zdpath;
   std::string wzpath;
   std::string finalsuffix;
   std::string seperator;
   bool random;
   PLSAOptions() :
       niters(100), ntopics(30), eps(1e-3), log_interval(10), save_interval(10), topn(20),
-      datadir("./"), topic_path("topics.dat"), tpath("topic-prob.dat"),
-      dzpath("doc-topic-prob.dat"), wzpath("word-topic-prob.dat"),
+      datadir("./"), topic_path("topics.dat"),
+      zdpath("topic-doc-prob.dat"), wzpath("word-topic-prob.dat"),
       finalsuffix("final"), seperator("\t"), random(true) {
   }
   std::string ToString() const {
@@ -71,9 +70,6 @@ public:
   bool SaveModel(int no) const;
   bool SaveModel(const std::string& suffix = "") const;
   bool SaveTopics(const std::string& path) const;
-  bool SaveTModel(const std::string& path) const;
-  bool SaveDZModel(const std::string& path) const;
-  bool SaveWZModel(const std::string& path) const;
 protected:
   PLSAOptions options_;
   const Dataset* dataset_;
@@ -81,19 +77,20 @@ protected:
   std::size_t nd_;  // number of documents
   std::size_t nw_;  // size of vocabulary
   std::size_t nz_;  // number of topics
-  std::size_t nr_;  // number of total word occurs
 
-  ublas::vector<double> p_z_;          // p(z)
-  ublas::matrix<double> p_d_z_;        // p(d|z)
+  ublas::matrix<double> p_z_d_;        // p(z|d)
   ublas::matrix<double> p_w_z_;        // p(w|z)
+  ublas::vector<double> p_z_dw_;       // p(z|d,w)
 
-  double znorm_;
+  ublas::vector<double> p_d_new_;
   ublas::vector<double> p_z_new_;
-  ublas::matrix<double> p_d_z_new_;
+  ublas::matrix<double> p_z_d_new_;
   ublas::matrix<double> p_w_z_new_;
-  ublas::vector<double> p_z_dw_;
 
-  std::size_t iter_;    // the current iteration
+  std::size_t iter_;    // current iteration
+
+  void RandomizeMatrix(ublas::matrix<double>& mat);
+  bool SaveMatrix(const ublas::matrix<double>& mat, const std::string& path) const;
 
   virtual double LogLikelihood();
   virtual void InitProb();

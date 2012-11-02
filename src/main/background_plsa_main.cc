@@ -25,7 +25,7 @@ DEFINE_int32(topics, 30, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_double(lambda, 0.8, "weight of background model");
-DEFINE_double(delta, 1e-3, "Delta added to loglikelihood");
+DEFINE_double(delta, 0.1, "Delta added to loglikelihood");
 DEFINE_int32(log_interval, 1, "log interval");
 DEFINE_int32(save_interval, 40, "save interval");
 DEFINE_string(datadir, "../data/bplsa/", "output data directory");

@@ -27,16 +27,15 @@ bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
   nd_ = dataset.DocSize();
   nw_ = dataset.DictSize();
   nz_ = options_.ntopics;
-  nr_ = dataset.TotalWordOccurs();
 
-  p_z_.resize(nz_);
-  p_d_z_.resize(nd_, nz_);
   p_w_z_.resize(nw_, nz_);
+  p_z_d_.resize(nz_, nd_);
+  p_z_dw_.resize(nz_);
 
   p_z_new_.resize(nz_);
-  p_d_z_new_.resize(nd_, nz_);
+  p_d_new_.resize(nd_);
   p_w_z_new_.resize(nw_, nz_);
-  p_z_dw_.resize(nz_);
+  p_z_d_new_.resize(nz_, nd_);
 
   return true;
 }
@@ -76,9 +75,8 @@ bool PLSA::SaveModel(int no) const {
 bool PLSA::SaveModel(const std::string& suffix) const {
   VLOG(1) << "SaveModel suffix=" << suffix;
   bool ret = SaveTopics(Path(options_.topic_path, suffix));
-  ret &= SaveTModel(Path(options_.tpath, suffix));
-  ret &= SaveDZModel(Path(options_.dzpath, suffix));
-  ret &= SaveWZModel(Path(options_.wzpath, suffix));
+  ret &= SaveMatrix(p_z_d_, Path(options_.zdpath, suffix));
+  ret &= SaveMatrix(p_w_z_, Path(options_.wzpath, suffix));
   return ret;
 }
 
@@ -111,57 +109,6 @@ bool PLSA::SaveTopics(const std::string& path) const {
   return true;
 }
 
-bool PLSA::SaveTModel(const std::string& path) const {
-  std::ofstream outf(path.c_str());
-  if (!outf) {
-    LOG(ERROR) << "Failed to save topic model to " << path;
-    return false;
-  }
-  outf << nz_ << "\n";
-  for (std::size_t z = 0; z < nz_; ++z) {
-    outf << p_z_(z) << "\n";
-  }
-  outf.close();
-  VLOG(2) << "Saved topic model to " << path;
-  return true;
-}
-
-bool PLSA::SaveDZModel(const std::string& path) const {
-  std::ofstream outf(path.c_str());
-  if (!outf) {
-    LOG(ERROR) << "Failed to save doc-topic model to " << path;
-    return false;
-  }
-  outf << nd_ << options_.seperator << nz_ << "\n";
-  for (std::size_t d = 0; d < nd_; ++d) {
-    for (std::size_t z = 0; z < nz_; ++z) {
-      outf << p_d_z_(d, z) << options_.seperator;
-    }
-    outf << "\n";
-  }
-  outf.close();
-  VLOG(2) << "Saved doc-topic model to " << path;
-  return true;
-}
-
-bool PLSA::SaveWZModel(const std::string& path) const {
-  std::ofstream outf(path.c_str());
-  if (!outf) {
-    LOG(ERROR) << "Failed to save word-topic model to " << path;
-    return false;
-  }
-  outf << nw_ << options_.seperator << nz_ << "\n";
-  for (std::size_t w = 0; w < nw_; ++w) {
-    for (std::size_t z = 0; z < nz_; ++z) {
-      outf << p_w_z_(w, z) << options_.seperator;
-    }
-    outf << "\n";
-  }
-  outf.close();
-  VLOG(2) << "Saved word-topic model to " << path;
-  return true;
-}
-
 double PLSA::LogLikelihood() {
   VLOG(2) << "LogLikelihood";
   double lik = 0;
@@ -172,7 +119,7 @@ double PLSA::LogLikelihood() {
       uint32_t n = doc.Freq(p);
       double p_dw = 0;
       for (uint32_t z = 0; z < nz_; ++z) {
-        p_dw += p_z_(z) * p_d_z_(d, z) * p_w_z_(w, z);
+        p_dw += p_z_d_(z, d) * p_w_z_(w, z);
       }
       VLOG(5) << "d=" << d << ", w=" << w << ", p_dw=" << p_dw;
       if (p_dw > 0) {
@@ -184,58 +131,18 @@ double PLSA::LogLikelihood() {
 }
 
 void PLSA::InitProb() {
-  static int kMod = 10000;
-  if (options_.random) {
-    std::srand(std::time(NULL));
-  } else {
-    std::srand(0);
-  }
-
-  double norm = 0;
-  for (std::size_t z = 0; z < nz_; ++z) {
-    int r = std::rand() % kMod + 1;
-    p_z_(z) = r;
-    norm += r;
-  }
-  for (std::size_t z = 0; z < nz_; ++z) {
-    p_z_(z) /= norm;
-  }
-
-  for (std::size_t z = 0; z < nz_; ++z) {
-    norm = 0;
-    for (std::size_t d = 0; d < nd_; ++d) {
-      int r = std::rand() % kMod + 1;
-      p_d_z_(d, z) = r;
-      norm += r;
-    }
-    for (std::size_t d = 0; d < nd_; ++d) {
-      p_d_z_(d, z) /= norm;
-    }
-  }
-
-  for (std::size_t z = 0; z < nz_; ++z) {
-    norm = 0;
-    for (std::size_t w = 0; w < nw_; ++w) {
-      int r = std::rand() % kMod + 1;
-      p_w_z_(w, z) = r;
-      norm += r;
-    }
-    for (std::size_t w = 0; w < nw_; ++w) {
-      p_w_z_(w, z) /= norm;
-    }
-  }
+  RandomizeMatrix(p_z_d_);
+  RandomizeMatrix(p_w_z_);
 }
 
 void PLSA::EMStep() {
   VLOG(2) << "EMStep";
 
+  p_d_new_.clear();
   p_z_new_.clear();
-  p_d_z_new_.clear();
   p_w_z_new_.clear();
+  p_z_d_new_.clear();
 
-  p_z_dw_.clear();
-
-  znorm_ = 0;
   for (uint32_t d = 0; d < nd_; ++d) {
     const Document& doc = dataset_->Doc(d);
     for (uint32_t p = 0; p < doc.Size(); ++p) {
@@ -244,7 +151,7 @@ void PLSA::EMStep() {
       // Estep
       double norm = 0;
       for (uint32_t z = 0; z < nz_; ++z) {
-        double p_zdw = p_z_(z) * p_d_z_(d, z) * p_w_z_(w, z);
+        double p_zdw = p_z_d_(z, d) * p_w_z_(w, z);
         p_z_dw_(z) = p_zdw;
         norm += p_zdw;
       }
@@ -254,10 +161,10 @@ void PLSA::EMStep() {
       // Mstep
       for (uint32_t z = 0; z < nz_; ++z) {
         double np = n * p_z_dw_(z);
-        p_d_z_new_(d, z) += np;
         p_w_z_new_(w, z) += np;
+        p_z_d_new_(z, d) += np;
         p_z_new_(z) += np;
-        znorm_ += np;
+        p_d_new_(d) += np;
       }
     }
   }
@@ -267,13 +174,6 @@ void PLSA::EMStep() {
 
 void PLSA::Normalize() {
   for (uint32_t z = 0; z < nz_; ++z) {
-    for (uint32_t d = 0; d < nd_; ++d) {
-      if (p_z_new_(z) > 0) {
-        p_d_z_(d, z) = p_d_z_new_(d, z) / p_z_new_(z);
-      } else {
-        p_d_z_(d, z) = 0;
-      }
-    }
     for (uint32_t w = 0; w < nw_; ++w) {
       if (p_z_new_(z) > 0) {
         p_w_z_(w, z) = p_w_z_new_(w, z) / p_z_new_(z);
@@ -282,12 +182,61 @@ void PLSA::Normalize() {
       }
 //      CHECK(p_w_z_(w, z) > 0) << "Iter#" << iter_ << " " << NVC_(z) << NVC_(w) << NVC_(p_w_z_new_(w, z)) << NV_(p_z_new_(z));
     }
-    if (znorm_ > 0) {
-      p_z_(z) = p_z_new_(z) / znorm_;
-    } else {
-      p_z_(z) = 0;
+  }
+
+  for (uint32_t d = 0; d < nd_; ++d) {
+    for (uint32_t z = 0; z < nz_; ++z) {
+      if (p_d_new_(d) > 0) {
+        p_z_d_(z, d) = p_z_d_new_(z, d) / p_d_new_(d);
+      } else {
+        p_z_d_(z, d) = 0;
+      }
     }
   }
+}
+
+void PLSA::RandomizeMatrix(ublas::matrix<double>& mat) {
+  static int kMod = 10000;
+  static bool s_srand_done = false;
+  if (!s_srand_done) {
+    s_srand_done = true;
+    if (options_.random) {
+      std::srand(std::time(NULL));
+    } else {
+      std::srand(0);
+    }
+  }
+
+  for (std::size_t x = 0; x < mat.size2(); ++x) {
+    double norm = 0;
+    for (std::size_t y = 0; y < mat.size1(); ++y) {
+      int r = std::rand() % kMod + 1;
+      mat(y, x) = r;
+      norm += r;
+    }
+    for (std::size_t y = 0; y < mat.size1(); ++y) {
+      mat(y, x) /= norm;
+    }
+  }
+}
+
+bool PLSA::SaveMatrix(const ublas::matrix<double>& mat,
+    const std::string& path) const {
+  std::ofstream outf(path.c_str());
+  if (!outf) {
+    LOG(ERROR) << "Failed to save matrix to " << path;
+    return false;
+  }
+  outf << mat.size2() << options_.seperator << mat.size1() << "\n";
+  for (std::size_t x = 0; x < mat.size2(); ++x) {
+    for (std::size_t y = 0; y < mat.size1(); ++y) {
+      outf << mat(y, x) << options_.seperator;
+    }
+    outf << "\n";
+  }
+  outf.close();
+  VLOG(2) << "Have saved matrix to " << path;
+  return true;
 }
 
 std::string PLSA::Path(const std::string& fname, const std::string& suffix) const {
