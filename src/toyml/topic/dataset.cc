@@ -67,7 +67,7 @@ bool Dataset::Load(const std::string& fname) {
 }
 
 
-bool Dataset::CalcWordProb() const {
+bool Dataset::CalcWordFreq() const {
   if (idx2freq_done_) return true;
   idx2freq_done_ = true;
   idx2freq_.clear();
@@ -85,7 +85,7 @@ bool Dataset::CalcWordProb() const {
 }
 
 bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
-  if (!CalcWordProb()) {
+  if (!CalcWordFreq()) {
     return false;
   }
   probs.resize(idx2freq_.size());
@@ -95,33 +95,33 @@ bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
   return true;
 }
 
-bool Dataset::SaveWordProb(const std::string& path) const {
+bool Dataset::SaveDetailedDict(const std::string& path) const {
   std::ofstream outf(path.c_str());
   if (!outf) {
     return false;
   }
-  ublas::vector<double> probs;
-  if (!CalcWordProb(probs)) {
+  if (!CalcWordFreq()) {
     return false;
   }
 
   outf << DictSize() << "\n";
   for (Word2Idx::const_iterator it = word2idx_.begin(); it != word2idx_.end(); ++it) {
     const std::string& word = it->first;
-    uint32_t idx = it->second;
-    double prob = probs(idx);
-    outf << word << "\t" << idx << "\t" << prob << "\n";
+    std::size_t idx = it->second;
+    std::size_t freq = idx2freq_[idx];
+    double prob = static_cast<double>(freq) / TotalWordOccurs();
+    outf << word << "\t" << idx << "\t" << freq << "\t" << prob << "\n";
   }
   outf.close();
   return true;
 }
 
-bool Dataset::SaveTopWordProb(const std::string& path, std::size_t topn) const {
+bool Dataset::SaveTopFreqWord(const std::string& path, std::size_t topn) const {
   std::ofstream outf(path.c_str());
   if (!outf) {
     return false;
   }
-  if (!CalcWordProb()) {
+  if (!CalcWordFreq()) {
     return true;
   }
   typedef std::pair<std::size_t, std::size_t> FreqIdx;
@@ -136,7 +136,7 @@ bool Dataset::SaveTopWordProb(const std::string& path, std::size_t topn) const {
     std::size_t idx = freq_idx_vec[i].second;
     const std::string& word = Word(idx);
     double prob = static_cast<double>(freq) / TotalWordOccurs();
-    outf << word << "\t" << idx << "\t" << prob << "\n";
+    outf << word << "\t" << idx << "\t" << freq << "\t" << prob << "\n";
   }
   outf.close();
   return true;

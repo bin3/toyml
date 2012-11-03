@@ -21,10 +21,10 @@ DEFINE_string(dictpath, "../data/plsa/dict.dat", "output file of dictionary");
 DEFINE_int32(topics, 10, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
-DEFINE_int32(log_interval, 1, "log interval");
+DEFINE_int32(log_interval, 10, "log interval");
 DEFINE_int32(save_interval, 40, "save interval");
 DEFINE_string(datadir, "../data/plsa/", "output data directory");
-DEFINE_bool(random, true, "whether to randomly initialize probability");
+DEFINE_bool(random, false, "whether to randomly initialize probability");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
   toyml::Dataset dataset;
   CHECK(dataset.Load(FLAGS_docpath)) << "Failed to load file " << FLAGS_docpath;
   VLOG(0) << "docpath=" << FLAGS_docpath;
-  CHECK(dataset.SaveDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
+  CHECK(dataset.SaveDetailedDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
   VLOG(0) << "dataset.StatString: " << dataset.StatString();
   VLOG(4) << "dataset.Doc(0): " << dataset.Doc(0).ToString();
 
@@ -53,6 +53,8 @@ int main(int argc, char **argv) {
 
   toyml::PLSA plsa;
   CHECK(plsa.Init(options, dataset));
+  VLOG(0) << "PLSA: " << plsa.ToString();
+
   boost::posix_time::ptime start =
       boost::posix_time::microsec_clock::local_time();
   std::size_t niters = plsa.Train();

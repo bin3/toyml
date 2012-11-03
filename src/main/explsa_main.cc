@@ -27,6 +27,7 @@ DEFINE_int32(em_log_interval, 1000, "EMStep log interval");
 DEFINE_int32(save_interval, 40, "save interval");
 DEFINE_int32(threads, 0, "the number of threads");
 DEFINE_string(datadir, "../data/explsa/", "output data directory");
+DEFINE_bool(random, false, "whether to randomly initialize probability");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
@@ -39,13 +40,13 @@ int main(int argc, char **argv) {
   toyml::Dataset document_data;
   CHECK(document_data.Load(FLAGS_docpath)) << "Failed to load document file " << FLAGS_docpath;
   VLOG(0) << "docpath=" << FLAGS_docpath;
-  CHECK(document_data.SaveDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
+  CHECK(document_data.SaveDetailedDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
   VLOG(0) << "document_data: " << document_data.StatString();
 
   toyml::Dataset followee_data;
   CHECK(followee_data.Load(FLAGS_followeepath)) << "Failed to load followee file " << FLAGS_followeepath;
   VLOG(0) << "followeepath=" << FLAGS_followeepath;
-  CHECK(followee_data.SaveDict(FLAGS_celpath)) << "Failed to save celebrities file " << FLAGS_dictpath;
+  CHECK(followee_data.SaveDetailedDict(FLAGS_celpath)) << "Failed to save celebrities file " << FLAGS_dictpath;
   VLOG(0) << "followee_data: " << followee_data.StatString();
 
   toyml::ExPLSAOptions options;
@@ -58,6 +59,7 @@ int main(int argc, char **argv) {
   options.em_log_interval = FLAGS_em_log_interval;
   options.threads = FLAGS_threads ? FLAGS_threads : boost::thread::hardware_concurrency();
   options.datadir = FLAGS_datadir;
+  options.random = FLAGS_random;
   VLOG(0) << "options: " << options.ToString();
 
   toyml::ExPLSA explsa;

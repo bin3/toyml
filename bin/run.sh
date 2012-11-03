@@ -24,4 +24,5 @@ cd ../bin
 #./explsa_main --v=2 --save_interval=40 --lambda=1
 
 #./plsa_main --v=1 --random=0
-./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.8 --delta=0.1
+#./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.0 --delta=0.0
+./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.5 --delta=0.1
