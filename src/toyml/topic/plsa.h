@@ -40,7 +40,7 @@ struct PLSAOptions {
   std::string seperator;
   bool random;
   PLSAOptions() :
-      niters(100), ntopics(30), eps(1e-3), log_interval(10), save_interval(10), topn(20),
+      niters(100), ntopics(30), eps(1e-3), log_interval(10), save_interval(10), topn(10),
       datadir("./"), topic_path("topics.dat"),
       zdpath("topic-doc-prob.dat"), wzpath("word-topic-prob.dat"),
       finalsuffix("final"), seperator("\t"), random(false) {

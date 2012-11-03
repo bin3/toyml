@@ -36,9 +36,10 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   nt_ = opts_.ntopics;
   nw_ = ddata_->DictSize();
 
-  ow_ = opts_.ow;
-  ot_ = opts_.ot / nt_;
-  oc_ = opts_.oc;
+//  ow_ = opts_.ow;
+//  ot_ = opts_.ot / nt_;
+//  oc_ = opts_.oc;
+  ow_ = ot_ = oc_ = opts_.ow / (nu_ * nc_ * nt_ * nw_);
 
 //  p_c_u_.resize(nc_, nu_);
   p_c_u_ = ublas::matrix<double>(nc_, nu_, 0);  // filled value of double is not 0.0, so we should set it explicitly.
