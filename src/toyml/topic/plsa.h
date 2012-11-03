@@ -43,18 +43,18 @@ struct PLSAOptions {
       niters(100), ntopics(30), eps(1e-3), log_interval(10), save_interval(10), topn(20),
       datadir("./"), topic_path("topics.dat"),
       zdpath("topic-doc-prob.dat"), wzpath("word-topic-prob.dat"),
-      finalsuffix("final"), seperator("\t"), random(true) {
+      finalsuffix("final"), seperator("\t"), random(false) {
   }
   std::string ToString() const {
     std::stringstream ss;
-    ss << NAME_VAL_COMMA(niters);
-    ss << NAME_VAL_COMMA(ntopics);
-    ss << NAME_VAL_COMMA(eps);
-    ss << NAME_VAL_COMMA(log_interval);
-    ss << NAME_VAL_COMMA(save_interval);
-    ss << NAME_VAL_COMMA(topn);
-    ss << NAME_VAL_COMMA(random);
-    ss << NAME_VAL(datadir);
+    ss << NVC_(niters);
+    ss << NVC_(ntopics);
+    ss << NVC_(eps);
+    ss << NVC_(log_interval);
+    ss << NVC_(save_interval);
+    ss << NVC_(topn);
+    ss << NVC_(random);
+    ss << NV_(datadir);
     return ss.str();
   }
 };
@@ -70,6 +70,11 @@ public:
   bool SaveModel(int no) const;
   bool SaveModel(const std::string& suffix = "") const;
   bool SaveTopics(const std::string& path) const;
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << NVC_(nd_) << NVC_(nz_) << NV_(nw_);
+    return ss.str();
+  }
 protected:
   PLSAOptions options_;
   const Dataset* dataset_;

@@ -22,8 +22,13 @@ bool BackgroundPLSA::Init(const BackgroundPLSAOptions& options, const Dataset& d
   }
   boptions_ = options;
   lambda_ = options.lambda;
-  delta_ = options.delta / dataset.TotalWordOccurs();
-  return PLSA::Init(options, dataset);
+
+  bool ret = PLSA::Init(options, dataset);
+  if (!ret) return false;
+
+  delta_ = options.delta / (nd_ * nz_ * nw_);
+
+  return true;
 }
 
 double BackgroundPLSA::LogLikelihood() {

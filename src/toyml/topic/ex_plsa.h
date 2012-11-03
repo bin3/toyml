@@ -28,7 +28,10 @@ namespace ublas = boost::numeric::ublas;
 struct ExPLSAOptions {
   std::size_t niters;
   std::size_t ntopics;  // number of topics
-  double lambda;       // for backgroud
+  double lambda;       // weight of backgroud
+  double ow;            // factor for w to prevent overfitting
+  double ot;            // factor for t to prevent overfitting
+  double oc;            // factor for c to prevent overfitting
   double eps;
   int log_interval;
   int save_interval;
@@ -42,23 +45,25 @@ struct ExPLSAOptions {
   std::string cupath;
   std::string finalsuffix;
   std::string seperator;
+  bool random;
   ExPLSAOptions() :
-      niters(100), ntopics(100), lambda(0.2), eps(1e-3), log_interval(10), save_interval(10),
+      niters(100), ntopics(100), lambda(0.8), ow(0.01), ot(50), oc(0.1),
+      eps(0.1), log_interval(10), save_interval(10),
       em_log_interval(1000), threads(4), topn(10),
       datadir("./"), topic_path("topics.dat"), wtpath("word-topic-prob.dat"),
       tcpath("topic-cel-prob.dat"), cupath("cel-user-prob.dat"),
-      finalsuffix("final"), seperator("\t") {
+      finalsuffix("final"), seperator("\t"), random(false) {
   }
   std::string ToString() const {
     std::stringstream ss;
-    ss << NAME_VAL_COMMA(niters);
-    ss << NAME_VAL_COMMA(ntopics);
-    ss << NAME_VAL_COMMA(lambda);
-    ss << NAME_VAL_COMMA(eps);
-    ss << NAME_VAL_COMMA(log_interval);
-    ss << NAME_VAL_COMMA(save_interval);
-    ss << NAME_VAL_COMMA(threads);
-    ss << NAME_VAL_COMMA(topn);
+    ss << NVC_(niters);
+    ss << NVC_(ntopics);
+    ss << NVC_(lambda);
+    ss << NVC_(eps);
+    ss << NVC_(log_interval);
+    ss << NVC_(save_interval);
+    ss << NVC_(threads);
+    ss << NVC_(topn);
     ss << NAME_VAL(datadir);
     return ss.str();
   }
@@ -81,10 +86,8 @@ public:
   bool SaveCUModel(const std::string& path) const;
   std::string ToString() const {
     std::stringstream ss;
-    ss << NAME_VAL_COMMA(nu_);
-    ss << NAME_VAL_COMMA(nc_);
-    ss << NAME_VAL_COMMA(nt_);
-    ss << NAME_VAL(nw_);
+    ss << NVC_(nu_) << NVC_(nc_) << NVC_(nt_) << NVC_(nw_);
+    ss << NVC_(lambda_) << NVC_(ow_) << NVC_(ot_) << NV_(oc_);
     return ss.str();
   }
 private:
@@ -92,7 +95,11 @@ private:
   const Dataset* ddata_;  // document dataset
   const Dataset* fdata_;  // followee dataset whose format is similar like document dataset
 
-  double lambda_;   // for background
+  double lambda_;   // weight of background
+  double ow_;            // factor for w to prevent overfitting
+  double ot_;            // factor for t to prevent overfitting
+  double oc_;            // factor for c to prevent overfitting
+
   std::size_t nu_;  // number of users
   std::size_t nc_;  // number of celebrities
   std::size_t nt_;  // number of topics

@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
   toyml::ExPLSA explsa;
   CHECK(explsa.Init(options, document_data, followee_data));
-  VLOG(0) << "explsa: " << explsa.ToString();
+  VLOG(0) << "ExPLSA: " << explsa.ToString();
   boost::posix_time::ptime start =
       boost::posix_time::microsec_clock::local_time();
   std::size_t niters = explsa.Train();

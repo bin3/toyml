@@ -21,7 +21,7 @@ DEFINE_string(wprobpath, "../data/bplsa/wprob.dat", "output file of word probabi
 DEFINE_string(top_wprobpath, "../data/bplsa/top_wprob.dat", "output file of top word probabilities");
 DEFINE_int32(topn_wprob, 100, "topn of word probabilities");
 
-DEFINE_int32(topics, 30, "number of topics");
+DEFINE_int32(topics, 10, "number of topics");
 DEFINE_int32(iterators, 100, "number of iterators");
 DEFINE_double(eps, 0.1, "EPS");
 DEFINE_double(lambda, 0.8, "weight of background model");
@@ -60,11 +60,13 @@ int main(int argc, char **argv) {
   options.random = FLAGS_random;
   VLOG(0) << "options: " << options.ToString();
 
-  toyml::BackgroundPLSA plsa;
-  CHECK(plsa.Init(options, dataset));
+  toyml::BackgroundPLSA bplsa;
+  CHECK(bplsa.Init(options, dataset));
+  VLOG(0) << "BackgroundPLSA: " << bplsa.ToString();
+
   boost::posix_time::ptime start =
       boost::posix_time::microsec_clock::local_time();
-  std::size_t niters = plsa.Train();
+  std::size_t niters = bplsa.Train();
   boost::posix_time::ptime end =
       boost::posix_time::microsec_clock::local_time();
   boost::posix_time::time_duration elapsed = end - start;

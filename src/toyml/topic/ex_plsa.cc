@@ -36,6 +36,10 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
   nt_ = opts_.ntopics;
   nw_ = ddata_->DictSize();
 
+  ow_ = opts_.ow;
+  ot_ = opts_.ot / nt_;
+  oc_ = opts_.oc;
+
 //  p_c_u_.resize(nc_, nu_);
   p_c_u_ = ublas::matrix<double>(nc_, nu_, 0);  // filled value of double is not 0.0, so we should set it explicitly.
   p_t_c_.resize(nt_, nc_);
@@ -185,7 +189,7 @@ double ExPLSA::LogLikelihood() {
       }
       if (p_w_u > 0) {
 //        lik += ((1 - p_zuw_(u, w)) * log(p_w_u * lambada_) + p_zuw_(u, w) * log(p_w_b_(w) * (1 - lambada_))) * n;
-        lik += n * log(p_w_u * lambda_ + p_w_b_(w) * (1 - lambda_));
+        lik += n * log(p_w_u * (1 - lambda_) + p_w_b_(w) * lambda_);
       }
     }
   }
@@ -194,8 +198,16 @@ double ExPLSA::LogLikelihood() {
 
 void ExPLSA::InitProb() {
   VLOG(2) << "InitProb";
+  static bool s_srand_done = false;
+  if (!s_srand_done) {
+    s_srand_done = true;
+    if (opts_.random) {
+      std::srand(std::time(NULL));
+    } else {
+      std::srand(0);
+    }
+  }
   static int kMod = 10000;
-  std::srand(std::time(NULL));
 
   double norm = 0;
   for (std::size_t u = 0; u < nu_; ++u) {
@@ -285,22 +297,22 @@ void ExPLSA::DoEM(std::size_t tid) {
           norm += p_wtc_u;
         }
       }
-      double p_w_b = (1 - lambda_) * p_w_b_(w);
-      double p_zuw = p_w_b / (lambda_ * norm + p_w_b);
-      VLOG_IF(0, p_zuw > 0.99999) << "[p_zuw > 0.99999] p_zuw=" << p_zuw;
+      double p_w_b = lambda_ * p_w_b_(w);
+      double p_uw_b = p_w_b / ((1 - lambda_) * norm + p_w_b);
+//      VLOG_IF(0, p_zuw > 0.99999) << "[p_zuw > 0.99999] p_zuw=" << p_zuw;
 
       // Mstep
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
         uint32_t c = fol.Word(fi);
         for (uint32_t t = 0; t < nt_; ++t) {
           double p_ct = p_ct_(c, t) / norm;
-          double np = n * p_ct * (1 - p_zuw);
-          p_c_u_new_vec_[tid](c, u) += np;
-          p_t_c_new_vec_[tid](t, c) += np;
-          p_w_t_new_vec_[tid](w, t) += np;
-          unorm_vec_[tid](u) += np;
-          cnorm_vec_[tid](c) += np;
-          tnorm_vec_[tid](t) += np;
+          double np = n * p_ct * (1 - p_uw_b);
+          p_c_u_new_vec_[tid](c, u) += np + oc_;
+          p_t_c_new_vec_[tid](t, c) += np + ot_;
+          p_w_t_new_vec_[tid](w, t) += np + ow_;
+          unorm_vec_[tid](u) += np + oc_;
+          cnorm_vec_[tid](c) += np + ot_;
+          tnorm_vec_[tid](t) += np + ow_;
         }
       }
     }

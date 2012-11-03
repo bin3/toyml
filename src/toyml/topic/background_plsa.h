@@ -14,7 +14,7 @@ namespace toyml {
 
 struct BackgroundPLSAOptions: public PLSAOptions {
   double lambda;    // weight of background model
-  double delta;     // Added to loglikelyhood
+  double delta;     // added to loglikelyhood
 
   BackgroundPLSAOptions(): PLSAOptions::PLSAOptions(), lambda(0.8), delta(0.1) {}
   std::string ToString() const {
@@ -34,6 +34,12 @@ public:
   virtual ~BackgroundPLSA();
 
   bool Init(const BackgroundPLSAOptions& options, const Dataset& dataset);
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << NVC_(nd_) << NVC_(nz_) << NVC_(nw_);
+    ss << NVC_(lambda_) << NV_(delta_);
+    return ss.str();
+  }
 protected:
   BackgroundPLSAOptions boptions_;
   double lambda_;
