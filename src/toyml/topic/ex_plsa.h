@@ -16,8 +16,7 @@
 #include <glog/logging.h>
 
 #include "utils.h"
-#include "ex_dataset.h"
-#include "plsa.h"
+#include "dataset.h"
 
 namespace toyml {
 namespace ublas = boost::numeric::ublas;

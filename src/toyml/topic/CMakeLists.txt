@@ -2,7 +2,6 @@ set(lib toyml_topic)
 set(srcs
   dataset.cc
   plsa.cc
-  ex_dataset.cc
   ex_plsa.cc
   background_plsa.cc
 )
