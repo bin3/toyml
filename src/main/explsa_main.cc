@@ -28,6 +28,7 @@ DEFINE_int32(save_interval, 40, "save interval");
 DEFINE_int32(threads, 0, "the number of threads");
 DEFINE_string(datadir, "../data/explsa/", "output data directory");
 DEFINE_bool(random, false, "whether to randomly initialize probability");
+DEFINE_bool(super_celebrity, true, "whether to introduce the super celebrity");
 
 int main(int argc, char **argv) {
   FLAGS_stderrthreshold = 0;
@@ -60,6 +61,7 @@ int main(int argc, char **argv) {
   options.threads = FLAGS_threads ? FLAGS_threads : boost::thread::hardware_concurrency();
   options.datadir = FLAGS_datadir;
   options.random = FLAGS_random;
+  options.super_celebrity = FLAGS_super_celebrity;
   VLOG(0) << "options: " << options.ToString();
 
   toyml::ExPLSA explsa;

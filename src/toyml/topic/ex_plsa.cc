@@ -41,6 +41,10 @@ bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
 //  oc_ = opts_.oc;
   ow_ = ot_ = oc_ = opts_.ow / (nu_ * nc_ * nt_ * nw_);
 
+  p_superc_u_ = 1.0 / nc_;
+  p_t_superc_ = 1.0 / nt_;
+  p_t_superc_u_ = p_superc_u_ * p_t_superc_;
+
 //  p_c_u_.resize(nc_, nu_);
   p_c_u_ = ublas::matrix<double>(nc_, nu_, 0);  // filled value of double is not 0.0, so we should set it explicitly.
   p_t_c_.resize(nt_, nc_);
@@ -71,26 +75,25 @@ std::size_t ExPLSA::Train() {
   double pre_lik = LogLikelihood();
   double cur_lik = 0;
   VLOG(0) << "[begin] L=" << std::setprecision(10) << pre_lik;
-  std::size_t t = 0;
-  for ( ; t < opts_.niters; ++t) {
-    LOG_EVERY_N(INFO, opts_.log_interval) << "Iteration#" << t;
+  for (iter_ = 1 ; iter_ <= opts_.niters; ++iter_) {
+    LOG_EVERY_N(INFO, opts_.log_interval) << "Iteration#" << iter_;
     EMStep();
-    if ((t + 1) % opts_.save_interval == 0) {
-      SaveModel(t + 1);
+    if (iter_ % opts_.save_interval == 0) {
+      SaveModel(iter_);
     }
     cur_lik = LogLikelihood();
     double diff_lik = cur_lik - pre_lik;
     LOG_EVERY_N(INFO, opts_.log_interval) << std::setprecision(10) << "L=" << cur_lik << ", diff=" << diff_lik;
     CHECK(diff_lik >= 0.0);
     if (diff_lik < opts_.eps) {
-      VLOG(0) << "[break] Iterator#" << t << " diff=" << diff_lik << ", eps=" << opts_.eps;
+      VLOG(0) << "[break] Iterator#" << iter_ << " diff=" << diff_lik << ", eps=" << opts_.eps;
       break;
     }
     pre_lik = cur_lik;
   }
   VLOG(0) << "[end] L=" << std::setprecision(10) << cur_lik;
   SaveModel(opts_.finalsuffix);
-  return std::min(t + 1, opts_.niters);
+  return std::min(iter_, opts_.niters);
 }
 
 bool ExPLSA::SaveModel(int no) const {
@@ -220,6 +223,9 @@ void ExPLSA::InitProb() {
       p_c_u_(c, u) = r;
       norm += r;
     }
+    if (opts_.super_celebrity) {
+      norm += norm * p_superc_u_ / (1 - p_superc_u_);
+    }
     for (std::size_t i = 0; i < fol.Size(); ++i) {
       uint32_t c = fol.Word(i);
       p_c_u_(c, u) /= norm;
@@ -251,20 +257,7 @@ void ExPLSA::InitProb() {
   }
 
   // p_w_b_
-  std::size_t totalFreq = 0;
-  std::map<std::size_t, std::size_t> wordToFreq;
-  for (std::size_t i = 0; i < ddata_->DocSize(); ++i) {
-    const Document& doc = ddata_->Doc(i);
-    for (std::size_t j = 0; j < doc.Size(); ++j) {
-      std::size_t word = doc.Word(j);
-      std::size_t freq = doc.Freq(j);
-      wordToFreq[word] += freq;
-      totalFreq += freq;
-    }
-  }
-  for (std::map<std::size_t, std::size_t>::const_iterator it = wordToFreq.begin(); it != wordToFreq.end(); ++it) {
-    p_w_b_(it->first) = static_cast<double>(it->second) / totalFreq;
-  }
+  ddata_->CalcWordProb(p_w_b_);
 }
 
 void ExPLSA::DoEM(std::size_t tid) {
@@ -273,10 +266,12 @@ void ExPLSA::DoEM(std::size_t tid) {
   p_c_u_new_vec_[tid].clear();
   p_t_c_new_vec_[tid].clear();
   p_w_t_new_vec_[tid].clear();
+  CHECK(p_t_c_new_vec_[tid](0, 0) == 0) << "p_t_c_new_vec_[tid](0, 0)=" << p_t_c_new_vec_[tid](0, 0);
 
   unorm_vec_[tid].clear();
   cnorm_vec_[tid].clear();
   tnorm_vec_[tid].clear();
+  CHECK(unorm_vec_[tid](0) == 0) << " unorm_vec_[tid](0)=" << unorm_vec_[tid](0);
 
   ublas::matrix<double> p_ct_(nc_, nt_);
   for (uint32_t u = 0; (u = uid_++) < nu_; ) {
@@ -298,9 +293,15 @@ void ExPLSA::DoEM(std::size_t tid) {
           norm += p_wtc_u;
         }
       }
+      if (opts_.super_celebrity) {
+        for (uint32_t t = 0; t < nt_; ++t) {
+          double p_wtc_u = p_w_t_(w, t) * p_t_superc_u_;
+//          p_ct_(c, t) = p_wtc_u;
+          norm += p_wtc_u;
+        }
+      }
       double p_w_b = lambda_ * p_w_b_(w);
       double p_uw_b = p_w_b / ((1 - lambda_) * norm + p_w_b);
-//      VLOG_IF(0, p_zuw > 0.99999) << "[p_zuw > 0.99999] p_zuw=" << p_zuw;
 
       // Mstep
       for (std::size_t fi = 0; fi < fol.Size(); ++fi) {
@@ -313,6 +314,19 @@ void ExPLSA::DoEM(std::size_t tid) {
           p_w_t_new_vec_[tid](w, t) += np + ow_;
           unorm_vec_[tid](u) += np + oc_;
           cnorm_vec_[tid](c) += np + ot_;
+          tnorm_vec_[tid](t) += np + ow_;
+        }
+      }
+      if (opts_.super_celebrity) {
+        for (uint32_t t = 0; t < nt_; ++t) {
+          double p_ct = p_w_t_(w, t) * p_t_superc_u_;
+          p_ct = p_ct / norm;
+          double np = n * p_ct * (1 - p_uw_b);
+//          p_c_u_new_vec_[tid](c, u) += np + oc_;
+//          p_t_c_new_vec_[tid](t, c) += np + ot_;
+          p_w_t_new_vec_[tid](w, t) += np + ow_;
+          unorm_vec_[tid](u) += np + oc_;
+//          cnorm_vec_[tid](c) += np + ot_;
           tnorm_vec_[tid](t) += np + ow_;
         }
       }

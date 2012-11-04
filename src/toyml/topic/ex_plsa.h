@@ -46,13 +46,14 @@ struct ExPLSAOptions {
   std::string finalsuffix;
   std::string seperator;
   bool random;
+  bool super_celebrity;
   ExPLSAOptions() :
       niters(100), ntopics(100), lambda(0.8), ow(0.1), ot(50), oc(0.1),
       eps(0.1), log_interval(10), save_interval(10),
       em_log_interval(1000), threads(4), topn(10),
       datadir("./"), topic_path("topics.dat"), wtpath("word-topic-prob.dat"),
       tcpath("topic-cel-prob.dat"), cupath("cel-user-prob.dat"),
-      finalsuffix("final"), seperator("\t"), random(false) {
+      finalsuffix("final"), seperator("\t"), random(false), super_celebrity(true) {
   }
   std::string ToString() const {
     std::stringstream ss;
@@ -87,7 +88,8 @@ public:
   std::string ToString() const {
     std::stringstream ss;
     ss << NVC_(nu_) << NVC_(nc_) << NVC_(nt_) << NVC_(nw_);
-    ss << NVC_(lambda_) << NVC_(ow_) << NVC_(ot_) << NV_(oc_);
+    ss << NVC_(lambda_) << NVC_(ow_) << NVC_(ot_) << NVC_(oc_);
+    ss << NVC_(p_superc_u_) << NVC_(p_t_superc_) << NV_(p_t_superc_u_);
     return ss.str();
   }
 private:
@@ -109,6 +111,9 @@ private:
   ublas::matrix<double> p_t_c_;          // p(t|c)
   ublas::matrix<double> p_w_t_;          // p(w|t)
   ublas::vector<double> p_w_b_;           // p(p(w|B)
+  double p_superc_u_;   // p(super-c|u)
+  double p_t_superc_;   // p(t|super-c)
+  double p_t_superc_u_;   // p(super-c|u) * p(t|super-c)
 
   ublas::matrix<double> p_c_u_new_;          // p(c|u)
   ublas::matrix<double> p_t_c_new_;          // p(t|c)
@@ -125,6 +130,8 @@ private:
   std::vector<ublas::vector<double> > unorm_vec_;
   std::vector<ublas::vector<double> > cnorm_vec_;
   std::vector<ublas::vector<double> > tnorm_vec_;
+
+  std::size_t iter_;    // current iteration
 
   double LogLikelihood();
   void InitProb();
