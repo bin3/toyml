@@ -26,4 +26,4 @@ cd ../bin
 #./plsa_main --v=1 --random=0
 #./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.0 --delta=0.0
 #./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.8 --delta=0.1
-./explsa_main --v=1 --lambda=0.0
+./explsa_main --v=1 --lambda=0.8
