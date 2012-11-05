@@ -359,11 +359,12 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_c_u_new_vec_[tid](c, u);
       }
-      if (sum > kZeroEps) {
+      if (norm_sum > kZeroEps) {
         p_c_u_(c, u) = sum / norm_sum;
       } else {
         p_c_u_(c, u) = 0;
       }
+      CHECK(norm_sum > kZeroEps) << NVC_(iter_) << NVC_(u) << NVC_(c) << NVC_(sum) << NV_(norm_sum);
     }
   }
 
@@ -378,11 +379,12 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_t_c_new_vec_[tid](t, c);
       }
-      if (sum > kZeroEps) {
+      if (norm_sum > kZeroEps) {
         p_t_c_(t, c) = sum / norm_sum;
       } else {
         p_t_c_(t, c) = 0;
       }
+      CHECK(norm_sum > kZeroEps) << NVC_(iter_) << NVC_(c) << NVC_(t) << NVC_(sum) << NV_(norm_sum);
     }
   }
 
@@ -397,11 +399,12 @@ void ExPLSA::EMStep() {
       for (std::size_t tid = 0; tid < opts_.threads; ++tid) {
         sum += p_w_t_new_vec_[tid](w, t);
       }
-      if (sum > kZeroEps) {
+      if (norm_sum > kZeroEps) {
         p_w_t_(w, t) = sum / norm_sum;
       } else {
         p_w_t_(w, t) = 0;
       }
+      CHECK(norm_sum > kZeroEps) << NVC_(iter_) << NVC_(t) << NVC_(w) << NVC_(sum) << NV_(norm_sum);
     }
   }
 }

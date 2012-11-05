@@ -31,6 +31,7 @@ struct ExPLSAOptions {
   double ow;            // factor for w to prevent overfitting
   double ot;            // factor for t to prevent overfitting
   double oc;            // factor for c to prevent overfitting
+  bool super_celebrity;
   double eps;
   int log_interval;
   int save_interval;
@@ -45,14 +46,13 @@ struct ExPLSAOptions {
   std::string finalsuffix;
   std::string seperator;
   bool random;
-  bool super_celebrity;
   ExPLSAOptions() :
-      niters(100), ntopics(100), lambda(0.8), ow(0.1), ot(50), oc(0.1),
+      niters(100), ntopics(100), lambda(0.8), ow(0.1), ot(50), oc(0.1), super_celebrity(true),
       eps(0.1), log_interval(10), save_interval(10),
       em_log_interval(1000), threads(4), topn(10),
       datadir("./"), topic_path("topics.dat"), wtpath("word-topic-prob.dat"),
       tcpath("topic-cel-prob.dat"), cupath("cel-user-prob.dat"),
-      finalsuffix("final"), seperator("\t"), random(false), super_celebrity(true) {
+      finalsuffix("final"), seperator("\t"), random(false) {
   }
   std::string ToString() const {
     std::stringstream ss;
@@ -64,7 +64,7 @@ struct ExPLSAOptions {
     ss << NVC_(save_interval);
     ss << NVC_(threads);
     ss << NVC_(topn);
-    ss << NVC_(random) << NV_(datadir);
+    ss << NVC_(random) << NVC_(super_celebrity) << NV_(datadir);
     return ss.str();
   }
 };

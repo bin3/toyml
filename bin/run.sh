@@ -26,5 +26,5 @@ cd ../bin
 #./plsa_main --v=1 --random=0
 #./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.0 --delta=0.0
 #./background_plsa_main --v=1 --random=0 --log_dir=../log --lambda=0.8 --delta=0.1
-#./explsa_main --v=1 --lambda=0.0 --super_celebrity=1 --log_interval=1 --save_interval=1
-./explsa_main --v=1 --lambda=0.0 --super_celebrity=1 --log_interval=10
+#./explsa_main --v=1 --lambda=0.8 --super_celebrity=1 --log_interval=1 --save_interval=1
+./explsa_main --v=1 --lambda=0.0 --super_celebrity=0 --log_interval=10
