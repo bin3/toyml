@@ -1,19 +1,70 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<!DOCTYPE html>
+<html>
 
-<title>toyml</title>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Toyml : Toy of Machine Learning" />
 
-<script type="text/javascript" src="js/jquery.js"></script>
-<style type="text/css">
-</style>
-</head>
-<body>
-    <div><a href='cel_link.html' target='_blank'>Tag Celebrities</a></div>
-    <div><a href='m100-10/index.html' target='_blank'>Topic Model - 100 docs, 10 topics</a></div>
-    <div><a href='mall-30/index.html' target='_blank'>Topic Model - 1w+ docs, 30 topics</a></div>
-    <div><a href='mall-20/index.html' target='_blank'>Topic Model - 1w+ docs, 20 topics</a></div>
-    <div><a href='mall-10/index.html' target='_blank'>Topic Model - 1w+ docs, 10 topics</a></div>
-</body>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Toyml</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/bin3/toyml">View on GitHub</a>
+
+          <h1 id="project_title">Toyml</h1>
+          <h2 id="project_tagline">Toy of Machine Learning</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/bin3/toyml/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/bin3/toyml/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>Welcome to Toyml</h3>
+
+<p>This project is a toy of machine learning, which contains the implementations of some classic machine learning algorithms. It may be an easy beginning of learning those algorithms deeply.</p>
+
+<h3>Depended Libraries</h3>
+
+<ul>
+<li>gflags</li>
+<li>glog</li>
+<li>boost</li>
+</ul><h3>Build</h3>
+
+<pre><code>$ cd toyml
+$ mkdir -p build
+$ cd build
+$ cmake ../
+$ make
+</code></pre>
+
+<h3>Some Results</h3>
+
+<p><a href="topic_model_results.html">Topic Model Results</a></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Toyml maintained by <a href="https://github.com/bin3">bin3</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
 </html>
