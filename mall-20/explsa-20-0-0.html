@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<title>Topic Model Browser</title>
+
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/tm.js"></script>
+<link href="../tm.css" rel="stylesheet">
+</head>
+
+<body>
+<h2>Topic-Word</h2><table id='topic-word' border='1'>
+<tr class='word'><td>topic#1</td><td>free</td><td>win</td><td>gift</td><td>enter</td><td>date</td><td>save</td><td>sale</td><td>follow</td><td>end</td><td>malta</td></tr>
+<tr class='prob'><td>topic#1</td><td>0.0253627</td><td>0.0212532</td><td>0.00846096</td><td>0.00787842</td><td>0.00767468</td><td>0.00715816</td><td>0.00692816</td><td>0.00689768</td><td>0.0066001</td><td>0.0065813</td></tr>
+<tr class='word'><td>topic#2</td><td>obama</td><td>people</td><td>health</td><td>care</td><td>support</td><td>man</td><td>time</td><td>good</td><td>president</td><td>house</td></tr>
+<tr class='prob'><td>topic#2</td><td>0.01089</td><td>0.00826124</td><td>0.00798295</td><td>0.00772977</td><td>0.00364663</td><td>0.00354704</td><td>0.0033887</td><td>0.00336796</td><td>0.00302372</td><td>0.00286787</td></tr>
+<tr class='word'><td>topic#3</td><td>people</td><td>plz</td><td>twitter</td><td>money</td><td>great</td><td>business</td><td>free</td><td>make</td><td>marketing</td><td>video</td></tr>
+<tr class='prob'><td>topic#3</td><td>0.0162627</td><td>0.0161155</td><td>0.0157114</td><td>0.0147393</td><td>0.0137368</td><td>0.0136154</td><td>0.013419</td><td>0.0128396</td><td>0.012463</td><td>0.0115402</td></tr>
+<tr class='word'><td>topic#4</td><td>followers</td><td>site</td><td>van</td><td>youtube</td><td>en</td><td>een</td><td>het</td><td>member</td><td>video</td><td>op</td></tr>
+<tr class='prob'><td>topic#4</td><td>0.050302</td><td>0.0239459</td><td>0.0224662</td><td>0.0189027</td><td>0.0167082</td><td>0.0145052</td><td>0.0144581</td><td>0.0133613</td><td>0.0127992</td><td>0.0126524</td></tr>
+<tr class='word'><td>topic#5</td><td>lol</td><td>im</td><td>love</td><td>good</td><td>ur</td><td>dont</td><td>live</td><td>shit</td><td>check</td><td>make</td></tr>
+<tr class='prob'><td>topic#5</td><td>0.0286649</td><td>0.0151844</td><td>0.0110819</td><td>0.00818294</td><td>0.00814765</td><td>0.00781691</td><td>0.00664107</td><td>0.00630408</td><td>0.00563085</td><td>0.00527756</td></tr>
+<tr class='word'><td>topic#6</td><td>today</td><td>news</td><td>week</td><td>book</td><td>time</td><td>live</td><td>day</td><td>good</td><td>great</td><td>event</td></tr>
+<tr class='prob'><td>topic#6</td><td>0.0148063</td><td>0.00697026</td><td>0.0068281</td><td>0.00600476</td><td>0.00550252</td><td>0.00549209</td><td>0.00517189</td><td>0.00512636</td><td>0.00508974</td><td>0.00457009</td></tr>
+<tr class='word'><td>topic#7</td><td>good</td><td>love</td><td>time</td><td>day</td><td>work</td><td>awesome</td><td>make</td><td>fun</td><td>great</td><td>morning</td></tr>
+<tr class='prob'><td>topic#7</td><td>0.0132463</td><td>0.0105623</td><td>0.00924442</td><td>0.00696061</td><td>0.00624262</td><td>0.00543381</td><td>0.00524423</td><td>0.00499732</td><td>0.00457111</td><td>0.00442368</td></tr>
+<tr class='word'><td>topic#8</td><td>video</td><td>photo</td><td>check</td><td>michael</td><td>music</td><td>jackson</td><td>live</td><td>song</td><td>watch</td><td>album</td></tr>
+<tr class='prob'><td>topic#8</td><td>0.024533</td><td>0.0153256</td><td>0.0145971</td><td>0.0133643</td><td>0.0124436</td><td>0.0103701</td><td>0.00954763</td><td>0.00787176</td><td>0.00719655</td><td>0.00612735</td></tr>
+<tr class='word'><td>topic#9</td><td>climate</td><td>china</td><td>world</td><td>global</td><td>report</td><td>change</td><td>energy</td><td>obama</td><td>times</td><td>news</td></tr>
+<tr class='prob'><td>topic#9</td><td>0.00604917</td><td>0.00540887</td><td>0.00523572</td><td>0.004462</td><td>0.00407974</td><td>0.00386932</td><td>0.00381226</td><td>0.00359072</td><td>0.00345143</td><td>0.00307312</td></tr>
+<tr class='word'><td>topic#10</td><td>twitter</td><td>social</td><td>iphone</td><td>media</td><td>google</td><td>facebook</td><td>app</td><td>web</td><td>apple</td><td>video</td></tr>
+<tr class='prob'><td>topic#10</td><td>0.0376948</td><td>0.0210755</td><td>0.0183529</td><td>0.0175246</td><td>0.0160733</td><td>0.0135288</td><td>0.00974543</td><td>0.00896473</td><td>0.00677655</td><td>0.00673199</td></tr>
+<tr class='word'><td>topic#11</td><td>blog</td><td>post</td><td>free</td><td>read</td><td>tips</td><td>make</td><td>great</td><td>article</td><td>check</td><td>online</td></tr>
+<tr class='prob'><td>topic#11</td><td>0.0525947</td><td>0.0246698</td><td>0.0205465</td><td>0.0167572</td><td>0.015769</td><td>0.0119254</td><td>0.0115423</td><td>0.011289</td><td>0.0112161</td><td>0.0111562</td></tr>
+<tr class='word'><td>topic#12</td><td>playing</td><td>listeners</td><td>fml</td><td>review</td><td>sponsored</td><td>boss</td><td>life</td><td>joe</td><td>make</td><td>man</td></tr>
+<tr class='prob'><td>topic#12</td><td>0.0646183</td><td>0.0566613</td><td>0.0121188</td><td>0.0109076</td><td>0.00863008</td><td>0.0069507</td><td>0.00626259</td><td>0.00612277</td><td>0.00603354</td><td>0.00585746</td></tr>
+<tr class='word'><td>topic#13</td><td>video</td><td>news</td><td>michael</td><td>game</td><td>check</td><td>win</td><td>jackson</td><td>sports</td><td>filed</td><td>golf</td></tr>
+<tr class='prob'><td>topic#13</td><td>0.0151813</td><td>0.00626858</td><td>0.00538472</td><td>0.00530553</td><td>0.00483965</td><td>0.00478487</td><td>0.00475837</td><td>0.0045857</td><td>0.00438869</td><td>0.00380539</td></tr>
+<tr class='word'><td>topic#14</td><td>vote</td><td>tonight</td><td>love</td><td>great</td><td>voted</td><td>night</td><td>check</td><td>today</td><td>live</td><td>day</td></tr>
+<tr class='prob'><td>topic#14</td><td>0.0147733</td><td>0.0104268</td><td>0.010205</td><td>0.00865266</td><td>0.00847955</td><td>0.00830091</td><td>0.00825112</td><td>0.00664724</td><td>0.00630993</td><td>0.00612843</td></tr>
+<tr class='word'><td>topic#15</td><td>twitter</td><td>lol</td><td>love</td><td>great</td><td>follow</td><td>good</td><td>tweet</td><td>day</td><td>pls</td><td>hope</td></tr>
+<tr class='prob'><td>topic#15</td><td>0.0325184</td><td>0.0305997</td><td>0.0209388</td><td>0.0177483</td><td>0.0153102</td><td>0.0133992</td><td>0.0104505</td><td>0.00803238</td><td>0.00800766</td><td>0.0077741</td></tr>
+<tr class='word'><td>topic#16</td><td>la</td><td>da</td><td>em</td><td>para</td><td>en</td><td>na</td><td>um</td><td>eu</td><td>quiz</td><td>se</td></tr>
+<tr class='prob'><td>topic#16</td><td>0.018138</td><td>0.0141256</td><td>0.0124096</td><td>0.0117659</td><td>0.0115958</td><td>0.0105235</td><td>0.0102544</td><td>0.00975364</td><td>0.0096985</td><td>0.0096596</td></tr>
+<tr class='word'><td>topic#17</td><td>love</td><td>good</td><td>day</td><td>today</td><td>time</td><td>night</td><td>listening</td><td>hope</td><td>watching</td><td>haha</td></tr>
+<tr class='prob'><td>topic#17</td><td>0.0125942</td><td>0.0117817</td><td>0.0114727</td><td>0.011266</td><td>0.00848504</td><td>0.00815385</td><td>0.00701724</td><td>0.00578267</td><td>0.00576253</td><td>0.00561013</td></tr>
+<tr class='word'><td>topic#18</td><td>post</td><td>title</td><td>iran</td><td>health</td><td>blog</td><td>loss</td><td>news</td><td>weight</td><td>won</td><td>attacked</td></tr>
+<tr class='prob'><td>topic#18</td><td>0.0818748</td><td>0.0469457</td><td>0.0192312</td><td>0.0155711</td><td>0.0148609</td><td>0.012328</td><td>0.0122219</td><td>0.0118921</td><td>0.0102448</td><td>0.0100624</td></tr>
+<tr class='word'><td>topic#19</td><td>love</td><td>life</td><td>good</td><td>day</td><td>world</td><td>great</td><td>people</td><td>things</td><td>make</td><td>time</td></tr>
+<tr class='prob'><td>topic#19</td><td>0.0226011</td><td>0.0175823</td><td>0.00987713</td><td>0.0087415</td><td>0.00683037</td><td>0.00663542</td><td>0.00619858</td><td>0.00606684</td><td>0.00604683</td><td>0.00536923</td></tr>
+<tr class='word'><td>topic#20</td><td>business</td><td>home</td><td>online</td><td>news</td><td>market</td><td>credit</td><td>money</td><td>job</td><td>internet</td><td>real</td></tr>
+<tr class='prob'><td>topic#20</td><td>0.0147498</td><td>0.0112334</td><td>0.010658</td><td>0.00902106</td><td>0.00758033</td><td>0.00710578</td><td>0.00661107</td><td>0.00635443</td><td>0.0060555</td><td>0.00566528</td></tr>
+</table>
+<h2>Topic-Celebrity</h2><table id='topic-cel' border='1'>
+<tr class='word'><td>topic#1</td><td>ali_nejad</td><td>jerrybrown2010</td><td>thelittleidiot</td><td>mufihannemann</td><td>paulpierce34</td><td>gtdguy</td><td>instyledotcom</td><td>gossipgirl</td><td>nickcannon</td><td>realjohngreen</td></tr>
+<tr class='prob'><td>topic#1</td><td>0.0104076</td><td>0.00657733</td><td>0.00394645</td><td>0.00328428</td><td>0.00322855</td><td>0.00275611</td><td>0.00149402</td><td>0.00123076</td><td>0.00113277</td><td>0.0011274</td></tr>
+<tr class='word'><td>topic#2</td><td>terrymoran</td><td>gstephanopoulos</td><td>sherrieshepherd</td><td>andrew303</td><td>chadteverson</td><td>todayshow</td><td>rightwingnews</td><td>buildincomelist</td><td>markrmatthews</td><td>davelawrence</td></tr>
+<tr class='prob'><td>topic#2</td><td>0.00804326</td><td>0.00358757</td><td>0.00171915</td><td>0.00155468</td><td>0.00116148</td><td>0.00105473</td><td>0.00101855</td><td>0.000765294</td><td>0.000751439</td><td>0.000635227</td></tr>
+<tr class='word'><td>topic#3</td><td>schwarzenegger</td><td>startuppro</td><td>coolsi</td><td>debbas</td><td>kevincottrell</td><td>sonotony</td><td>etsy</td><td>bradhoward</td><td>parul_sharma</td><td>jayoatway</td></tr>
+<tr class='prob'><td>topic#3</td><td>0.0126024</td><td>0.00618026</td><td>0.00376043</td><td>0.00223318</td><td>0.00221861</td><td>0.00198629</td><td>0.00179551</td><td>0.0017572</td><td>0.00130629</td><td>0.00117649</td></tr>
+<tr class='word'><td>topic#4</td><td>thatkevinsmith</td><td>peoplepets</td><td>bartonsmart</td><td>mystylequicktip</td><td>cdcemergency</td><td>manomenezes</td><td>showdavida</td><td>kevinrose</td><td>sportsguy33</td><td>countingcrows</td></tr>
+<tr class='prob'><td>topic#4</td><td>0.0160825</td><td>0.0103263</td><td>0.00718718</td><td>0.00522411</td><td>0.00236575</td><td>0.00199594</td><td>0.00163247</td><td>0.00119759</td><td>0.000953598</td><td>0.000818192</td></tr>
+<tr class='word'><td>topic#5</td><td>souljaboytellem</td><td>tyrese4real</td><td>djdrama</td><td>iamdiddy</td><td>therealswizzz</td><td>drakkardnoir</td><td>nickiminaj</td><td>dawnrichard</td><td>solangeknowles</td><td>pleasurep</td></tr>
+<tr class='prob'><td>topic#5</td><td>0.0120747</td><td>0.00704173</td><td>0.0048883</td><td>0.00433336</td><td>0.0039645</td><td>0.00390866</td><td>0.00352706</td><td>0.00292832</td><td>0.00286971</td><td>0.00283237</td></tr>
+<tr class='word'><td>topic#6</td><td>astro_mike</td><td>feliciaday</td><td>goldman</td><td>davidgregory</td><td>johncmayer</td><td>chuckpalahniuk</td><td>kevinpollak</td><td>someecards</td><td>robmcnealy</td><td>wholefoods</td></tr>
+<tr class='prob'><td>topic#6</td><td>0.00553422</td><td>0.00373119</td><td>0.0033654</td><td>0.00256724</td><td>0.00199711</td><td>0.00165895</td><td>0.00156026</td><td>0.00135954</td><td>0.00130223</td><td>0.00105837</td></tr>
+<tr class='word'><td>topic#7</td><td>oprah</td><td>maddow</td><td>trent_reznor</td><td>heidimontag</td><td>thebrandicyrus</td><td>ryanseacrest</td><td>darthvader</td><td>nathanfillion</td><td>stephenfry</td><td>mrtweet</td></tr>
+<tr class='prob'><td>topic#7</td><td>0.0143107</td><td>0.00532937</td><td>0.00352507</td><td>0.00311331</td><td>0.00256472</td><td>0.00153307</td><td>0.0015087</td><td>0.00137701</td><td>0.00123114</td><td>0.00122836</td></tr>
+<tr class='word'><td>topic#8</td><td>kevinspacey</td><td>jessicasimpson</td><td>alleyinsider</td><td>lennykravitz</td><td>travismtv</td><td>colinmeloy</td><td>mtv_music</td><td>ianjamespoulter</td><td>erniehalter</td><td>brookehogan</td></tr>
+<tr class='prob'><td>topic#8</td><td>0.0204515</td><td>0.00464213</td><td>0.00453287</td><td>0.00346795</td><td>0.00234112</td><td>0.00125833</td><td>0.00120993</td><td>0.00116527</td><td>0.00108736</td><td>0.00103199</td></tr>
+<tr class='word'><td>topic#9</td><td>whitehouse</td><td>thebusybrain</td><td>zete</td><td>jimmacmillan</td><td>marsphoenix</td><td>cboe</td><td>timoreilly</td><td>wsj</td><td>nprpolitics</td><td>ricksanchezcnn</td></tr>
+<tr class='prob'><td>topic#9</td><td>0.00661907</td><td>0.00201286</td><td>0.00171119</td><td>0.00138938</td><td>0.00133812</td><td>0.00106485</td><td>0.00099662</td><td>0.000817644</td><td>0.000795136</td><td>0.000726003</td></tr>
+<tr class='word'><td>topic#10</td><td>threadless</td><td>benjamteal</td><td>jerell</td><td>pja64x</td><td>etsy</td><td>chrispirillo</td><td>gabestrom</td><td>djc8080</td><td>twittmarketing</td><td>unmarketing</td></tr>
+<tr class='prob'><td>topic#10</td><td>0.00406477</td><td>0.00274395</td><td>0.00273153</td><td>0.00192558</td><td>0.001618</td><td>0.0015478</td><td>0.00142458</td><td>0.00142137</td><td>0.0013149</td><td>0.00126821</td></tr>
+<tr class='word'><td>topic#11</td><td>mashable</td><td>meteorit</td><td>arfanchaudhry</td><td>techcrunch</td><td>aaronabber</td><td>molfamily</td><td>mlm4ever</td><td>scobleizer</td><td>larrywentz</td><td>buzzedition</td></tr>
+<tr class='prob'><td>topic#11</td><td>0.0229505</td><td>0.00404546</td><td>0.00328235</td><td>0.0020891</td><td>0.00199822</td><td>0.00192655</td><td>0.00162749</td><td>0.00158261</td><td>0.00138499</td><td>0.00135398</td></tr>
+<tr class='word'><td>topic#12</td><td>life</td><td>joesebok</td><td>kyleandjackieo</td><td>n2nbroadway</td><td>jonsecada</td><td>selenagomez</td><td>david_henrie</td><td>chriscornell</td><td>jimmyeatworld</td><td>ethansuplee</td></tr>
+<tr class='prob'><td>topic#12</td><td>0.0016521</td><td>0.00155693</td><td>0.00125011</td><td>0.00120754</td><td>0.000863928</td><td>0.000402227</td><td>0.000247609</td><td>7.24532e-05</td><td>7.0882e-05</td><td>4.97483e-05</td></tr>
+<tr class='word'><td>topic#13</td><td>johndonvannl</td><td>roc4life</td><td>paulaabdul</td><td>eonline</td><td>algore</td><td>enewsnow</td><td>kristenresource</td><td>derekfisher</td><td>moonfrye</td><td>freddurst</td></tr>
+<tr class='prob'><td>topic#13</td><td>0.0128722</td><td>0.00166837</td><td>0.00136777</td><td>0.00111858</td><td>0.000994474</td><td>0.000908515</td><td>0.000865478</td><td>0.000778379</td><td>0.000735577</td><td>0.000614716</td></tr>
+<tr class='word'><td>topic#14</td><td>theellenshow</td><td>robriggle</td><td>ryanseacrest</td><td>samantharonson</td><td>hollymadison123</td><td>aplusk</td><td>comeagainjen</td><td>babygirlparis</td><td>kimkardashian</td><td>keepinupwkris</td></tr>
+<tr class='prob'><td>topic#14</td><td>0.00872057</td><td>0.00427344</td><td>0.003566</td><td>0.00288621</td><td>0.00218143</td><td>0.00122351</td><td>0.00115128</td><td>0.000948949</td><td>0.000910723</td><td>0.000872666</td></tr>
+<tr class='word'><td>topic#15</td><td>ronniewilson</td><td>oudiantebi</td><td>brat13</td><td>unclerush</td><td>publicityguru</td><td>rockingjude</td><td>radioblogger</td><td>dominicscott</td><td>judyrey</td><td>hawaiirealty</td></tr>
+<tr class='prob'><td>topic#15</td><td>0.00258463</td><td>0.00217427</td><td>0.00156803</td><td>0.00139562</td><td>0.0013842</td><td>0.00116856</td><td>0.000964166</td><td>0.000796109</td><td>0.000673624</td><td>0.000667649</td></tr>
+<tr class='word'><td>topic#16</td><td>huckluciano</td><td>richardpbacon</td><td>marimoon</td><td>bbcclick</td><td>christianpior</td><td>rodrigovesgo</td><td>marcoluque</td><td>ticostacruz</td><td>bgagliasso</td><td>mionzera</td></tr>
+<tr class='prob'><td>topic#16</td><td>0.00604427</td><td>0.00424821</td><td>0.00285355</td><td>0.00226588</td><td>0.00224081</td><td>0.0019002</td><td>0.00166924</td><td>0.0015825</td><td>0.00155102</td><td>0.00146428</td></tr>
+<tr class='word'><td>topic#17</td><td>afinefrenzy</td><td>barbarajwalters</td><td>theonion</td><td>wossy</td><td>perezhilton</td><td>billyraycyrus</td><td>jeffreestar</td><td>hollywills</td><td>fearnecotton</td><td>thisisdavina</td></tr>
+<tr class='prob'><td>topic#17</td><td>0.00671397</td><td>0.00512769</td><td>0.00482142</td><td>0.00348688</td><td>0.00282714</td><td>0.00273767</td><td>0.00255232</td><td>0.00219619</td><td>0.00210056</td><td>0.00208274</td></tr>
+<tr class='word'><td>topic#18</td><td>queenrania</td><td>ijustine</td><td>kaifulee</td><td>pink</td><td>mtv</td><td>cnetnews</td><td>persiankiwi</td><td>twitterrific</td><td>katiecouric</td><td>therealdvorak</td></tr>
+<tr class='prob'><td>topic#18</td><td>0.00414614</td><td>0.00345804</td><td>0.00233719</td><td>0.00143742</td><td>0.00140645</td><td>0.00125102</td><td>0.000724912</td><td>0.000713568</td><td>0.000689511</td><td>0.000672952</td></tr>
+<tr class='word'><td>topic#19</td><td>goup</td><td>zaibatsu</td><td>o_magazine</td><td>robertomazzoni</td><td>deepak_chopra</td><td>danecook</td><td>kinggayle</td><td>onepoke</td><td>funnyjoker</td><td>markclayson</td></tr>
+<tr class='prob'><td>topic#19</td><td>0.00308099</td><td>0.00244043</td><td>0.00239481</td><td>0.00199065</td><td>0.00187299</td><td>0.00180218</td><td>0.00134893</td><td>0.00129533</td><td>0.00124717</td><td>0.00123247</td></tr>
+<tr class='word'><td>topic#20</td><td>pogue</td><td>exectweets</td><td>om</td><td>rww</td><td>cakewrecks</td><td>bobvilacom</td><td>imogenheap</td><td>marcosantarelli</td><td>sween</td><td>agent_m</td></tr>
+<tr class='prob'><td>topic#20</td><td>0.00589448</td><td>0.00421916</td><td>0.00388478</td><td>0.00337814</td><td>0.00331849</td><td>0.00295774</td><td>0.00217509</td><td>0.00139278</td><td>0.00109241</td><td>0.00104007</td></tr>
+</table>
+</body>
+
+<div id='log'></div></html>
