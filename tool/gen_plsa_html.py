@@ -42,7 +42,7 @@ def run(opts, args):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option('-i', '--inf', default='../topics.dat.final', help='the input topics file')
+    parser.add_option('-i', '--inf', default='../plsa/topics.dat.final', help='the input topics file')
     parser.add_option('-o', '--outf', default='tm.html', help='the output topics html file')
     parser.add_option('-b', '--header', default='header.html', help='the intput header html file')
     (opts, args) = parser.parse_args()
