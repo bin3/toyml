@@ -9,3 +9,6 @@ target_link_libraries(explsa_main toyml_topic boost_thread glog gflags)
 
 add_executable(background_plsa_main background_plsa_main.cc)
 target_link_libraries(background_plsa_main toyml_topic glog gflags)
+
+add_executable(lda_main lda_main.cc)
+target_link_libraries(lda_main toyml_lda glog gflags)

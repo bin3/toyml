@@ -8,7 +8,12 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <string>
+#include <boost/numeric/ublas/matrix.hpp>
+
 namespace toyml {
+
+namespace ublas = boost::numeric::ublas;
 
 #define NAME_VAL(v) #v << "=" << v
 #define NAME_VAL_COMMA(v) #v << "=" << v << ", "
@@ -22,6 +27,9 @@ class Utils {
 public:
   Utils();
   virtual ~Utils();
+
+  static bool SaveMatrix(const ublas::matrix<double>& mat,
+      const std::string& path);
 };
 
 } /* namespace toyml */
