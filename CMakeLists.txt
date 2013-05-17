@@ -58,7 +58,7 @@ link_directories(
 # lib
 #set(Boost_DEBUG 1)
 set(BOOST_ROOT ${third_dir})
-#set(Boost_USE_STATIC_LIBS on)
+set(Boost_USE_STATIC_LIBS on)
 #set(Boost_USE_MULTITHREADED on)
 #set(Boost_USE_STATIC_RUNTIME on)
 find_package(Boost REQUIRED)

@@ -59,7 +59,7 @@ public:
   LDA();
   virtual ~LDA();
 
-  bool Init(const LDAOptions& options, const Dataset& dataset);
+  bool Init(const LDAOptions& options, const DocumentSet& dataset);
   bool Train();
 };
 

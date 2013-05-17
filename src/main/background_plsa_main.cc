@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
   VLOG(0) << "------" << argv[0] << "------";
 
-  toyml::Dataset dataset;
+  toyml::DocumentSet dataset;
   CHECK(dataset.Load(FLAGS_docpath)) << "Failed to load file " << FLAGS_docpath;
   VLOG(0) << "docpath=" << FLAGS_docpath;
   CHECK(dataset.SaveDetailedDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;

@@ -38,13 +38,13 @@ int main(int argc, char **argv) {
 
   VLOG(0) << "------" << argv[0] << "------";
 
-  toyml::Dataset document_data;
+  toyml::DocumentSet document_data;
   CHECK(document_data.Load(FLAGS_docpath)) << "Failed to load document file " << FLAGS_docpath;
   VLOG(0) << "docpath=" << FLAGS_docpath;
   CHECK(document_data.SaveDetailedDict(FLAGS_dictpath)) << "Failed to save dictionary file " << FLAGS_dictpath;
   VLOG(0) << "document_data: " << document_data.StatString();
 
-  toyml::Dataset followee_data;
+  toyml::DocumentSet followee_data;
   CHECK(followee_data.Load(FLAGS_followeepath)) << "Failed to load followee file " << FLAGS_followeepath;
   VLOG(0) << "followeepath=" << FLAGS_followeepath;
   CHECK(followee_data.SaveDetailedDict(FLAGS_celpath)) << "Failed to save celebrities file " << FLAGS_dictpath;

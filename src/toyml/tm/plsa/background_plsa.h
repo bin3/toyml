@@ -33,7 +33,7 @@ public:
   BackgroundPLSA();
   virtual ~BackgroundPLSA();
 
-  bool Init(const BackgroundPLSAOptions& options, const Dataset& dataset);
+  bool Init(const BackgroundPLSAOptions& options, const DocumentSet& dataset);
   std::string ToString() const {
     std::stringstream ss;
     ss << NVC_(nd_) << NVC_(nz_) << NVC_(nw_);

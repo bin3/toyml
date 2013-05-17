@@ -75,8 +75,8 @@ struct ExPLSAOptions {
 class ExPLSA {
 public:
   virtual ~ExPLSA();
-  bool Init(const ExPLSAOptions& options, const Dataset& document_data,
-      const Dataset& followee_data);
+  bool Init(const ExPLSAOptions& options, const DocumentSet& document_data,
+      const DocumentSet& followee_data);
   std::size_t Train();
   bool SaveModel(int no) const;
   bool SaveModel(const std::string& suffix = "") const;
@@ -93,8 +93,8 @@ public:
   }
 private:
   ExPLSAOptions opts_;
-  const Dataset* ddata_;  // document dataset
-  const Dataset* fdata_;  // followee dataset whose format is similar like document dataset
+  const DocumentSet* ddata_;  // document dataset
+  const DocumentSet* fdata_;  // followee dataset whose format is similar like document dataset
 
   double lambda_;   // weight of background
   double ow_;            // factor for w to prevent overfitting

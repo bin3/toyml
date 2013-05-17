@@ -19,8 +19,8 @@ static double kZeroEps = 1e-10;
 ExPLSA::~ExPLSA() {
 }
 
-bool ExPLSA::Init(const ExPLSAOptions& options, const Dataset& document_data,
-    const Dataset& followee_data) {
+bool ExPLSA::Init(const ExPLSAOptions& options, const DocumentSet& document_data,
+    const DocumentSet& followee_data) {
   if (document_data.DocSize() != followee_data.DocSize()) {
     LOG(ERROR) << "The number of documents and users are not equal. docs="
         << document_data.DocSize() << ", users=" << followee_data.DocSize();

@@ -65,7 +65,7 @@ struct PLSAOptions {
 class PLSA {
 public:
   virtual ~PLSA();
-  bool Init(const PLSAOptions& options, const Dataset& dataset);
+  bool Init(const PLSAOptions& options, const DocumentSet& dataset);
   std::size_t Train();
   bool SaveModel(int no) const;
   bool SaveModel(const std::string& suffix = "") const;
@@ -77,7 +77,7 @@ public:
   }
 protected:
   PLSAOptions options_;
-  const Dataset* dataset_;
+  const DocumentSet* dataset_;
 
   std::size_t nd_;  // number of documents
   std::size_t nw_;  // size of vocabulary

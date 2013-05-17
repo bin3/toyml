@@ -15,13 +15,13 @@ namespace toyml {
 
 static const std::string kSeperator = " \t\r\n";
 
-Dataset::Dataset(): woccurs_(0), idx2freq_done_(false) {
+DocumentSet::DocumentSet(): woccurs_(0), idx2freq_done_(false) {
 }
 
-Dataset::~Dataset() {
+DocumentSet::~DocumentSet() {
 }
 
-bool Dataset::Load(const std::string& fname) {
+bool DocumentSet::Load(const std::string& fname) {
   typedef std::map<uint32_t, uint32_t> Word2Freq;
 
   std::ifstream inf(fname);
@@ -67,7 +67,7 @@ bool Dataset::Load(const std::string& fname) {
 }
 
 
-bool Dataset::CalcWordFreq() const {
+bool DocumentSet::CalcWordFreq() const {
   if (idx2freq_done_) return true;
   idx2freq_done_ = true;
   idx2freq_.clear();
@@ -84,7 +84,7 @@ bool Dataset::CalcWordFreq() const {
   return true;
 }
 
-bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
+bool DocumentSet::CalcWordProb(ublas::vector<double>& probs) const {
   if (!CalcWordFreq()) {
     return false;
   }
@@ -95,7 +95,7 @@ bool Dataset::CalcWordProb(ublas::vector<double>& probs) const {
   return true;
 }
 
-bool Dataset::SaveDetailedDict(const std::string& path) const {
+bool DocumentSet::SaveDetailedDict(const std::string& path) const {
   std::ofstream outf(path.c_str());
   if (!outf) {
     return false;
@@ -116,7 +116,7 @@ bool Dataset::SaveDetailedDict(const std::string& path) const {
   return true;
 }
 
-bool Dataset::SaveTopFreqWord(const std::string& path, std::size_t topn) const {
+bool DocumentSet::SaveTopFreqWord(const std::string& path, std::size_t topn) const {
   std::ofstream outf(path.c_str());
   if (!outf) {
     return false;

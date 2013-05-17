@@ -18,7 +18,7 @@ namespace toyml {
 GibbsLDA::~GibbsLDA() {
 }
 
-bool GibbsLDA::Init(const LDAOptions& options, const Dataset& dataset) {
+bool GibbsLDA::Init(const LDAOptions& options, const DocumentSet& dataset) {
   options_ = options;
   dataset_ = &dataset;
   Initialize();

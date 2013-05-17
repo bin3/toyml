@@ -20,7 +20,7 @@ namespace toyml {
 PLSA::~PLSA() {
 }
 
-bool PLSA::Init(const PLSAOptions& options, const Dataset& dataset) {
+bool PLSA::Init(const PLSAOptions& options, const DocumentSet& dataset) {
   options_ = options;
   dataset_ = &dataset;
 

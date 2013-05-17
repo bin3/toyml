@@ -79,10 +79,10 @@ private:
 /**
  * @brief 
  */
-class Dataset {
+class DocumentSet {
 public:
-  Dataset();
-  virtual ~Dataset();
+  DocumentSet();
+  virtual ~DocumentSet();
   bool Load(const std::string& fname);
   const Document& Doc(uint32_t doc) const {
     return docs_[doc];

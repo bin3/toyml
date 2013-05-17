@@ -15,7 +15,7 @@ BackgroundPLSA::BackgroundPLSA(): lambda_(0), delta_(1e-3) {
 BackgroundPLSA::~BackgroundPLSA() {
 }
 
-bool BackgroundPLSA::Init(const BackgroundPLSAOptions& options, const Dataset& dataset) {
+bool BackgroundPLSA::Init(const BackgroundPLSAOptions& options, const DocumentSet& dataset) {
   if (options.lambda < 0 || options.lambda > 1.0) {
     LOG(ERROR) << "lambda=" << options.lambda << " which should be [0, 1]";
     return false;

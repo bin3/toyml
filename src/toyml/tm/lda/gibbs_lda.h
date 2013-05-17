@@ -25,7 +25,7 @@ class GibbsLDA {
 public:
   virtual ~GibbsLDA();
 
-  bool Init(const LDAOptions& options, const Dataset& dataset);
+  bool Init(const LDAOptions& options, const DocumentSet& dataset);
   std::size_t Train();
   std::string ToString() const;
 
@@ -34,7 +34,7 @@ public:
   bool SaveTopics(const std::string& path) const;
 private:
   LDAOptions options_;
-  const Dataset* dataset_;
+  const DocumentSet* dataset_;
 
   std::size_t nd_;  // number of documents
   std::size_t nw_;  // size of vocabulary
