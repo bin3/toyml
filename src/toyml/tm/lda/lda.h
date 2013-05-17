@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include <toyml/topic/utils.h>
-#include <toyml/topic/dataset.h>
+#include <toyml/tm/utils.h>
+#include <toyml/tm/dataset.h>
 
 namespace toyml {
 

@@ -15,8 +15,8 @@
 #include <boost/thread.hpp>
 #include <glog/logging.h>
 
-#include "utils.h"
-#include "dataset.h"
+#include <toyml/tm/utils.h>
+#include <toyml/tm/dataset.h>
 
 namespace toyml {
 namespace ublas = boost::numeric::ublas;

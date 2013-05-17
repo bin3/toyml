@@ -13,8 +13,6 @@
 #include <sstream>
 #include <glog/logging.h>
 
-#include <toyml/topic/utils.h>
-
 namespace toyml {
 
 GibbsLDA::~GibbsLDA() {

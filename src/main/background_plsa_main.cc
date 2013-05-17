@@ -10,7 +10,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#include <toyml/topic/background_plsa.h>
+#include <toyml/tm/plsa/background_plsa.h>
 
 DECLARE_int32(stderrthreshold);
 //DECLARE_string(log_dir);

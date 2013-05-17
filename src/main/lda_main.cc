@@ -10,7 +10,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#include <toyml/topic/lda/gibbs_lda.h>
+#include <toyml/tm/lda/gibbs_lda.h>
 
 DECLARE_int32(stderrthreshold);
 //DECLARE_string(log_dir);

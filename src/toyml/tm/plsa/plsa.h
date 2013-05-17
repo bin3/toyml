@@ -14,8 +14,8 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <glog/logging.h>
 
-#include "utils.h"
-#include "dataset.h"
+#include <toyml/tm/utils.h>
+#include <toyml/tm/dataset.h>
 
 namespace toyml {
 

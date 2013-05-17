@@ -1,2 +1,2 @@
-add_subdirectory(topic)
+add_subdirectory(tm)
 add_subdirectory(classifier)

@@ -11,7 +11,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#include <toyml/topic/ex_plsa.h>
+#include <toyml/tm/plsa/ex_plsa.h>
 
 DEFINE_string(docpath, "../data/explsa/doc.dat.test", "input file of documents");
 DEFINE_string(followeepath, "../data/explsa/followee.dat.test", "input file of documents");

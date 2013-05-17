@@ -9,7 +9,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#include <toyml/topic/dataset.h>
+#include <toyml/tm/dataset.h>
 
 DEFINE_string(docpath, "../data/topic/testdocs.dat", "input file of documents");
 DEFINE_string(dictpath, "../data/topic/dict.dat", "output file of dictionary");
