@@ -33,7 +33,7 @@ TEST(Csv, ReadCsv) {
   ClassificationData data;
   EXPECT_EQ(0U, data.Size());
   EXPECT_FALSE(ReadCsv("null/null", &data));
-  ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data, 2));
+  ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data, LAST_COLUMN));
   const std::size_t kN = 10;
   EXPECT_EQ(kN, data.Size());
   uint32_t expected_labels_arr[kN] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1};

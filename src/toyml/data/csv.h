@@ -38,6 +38,10 @@ namespace toyml {
 
 namespace algo = boost::algorithm;
 
+enum LabelPosition {
+  FIRST_COLUMN = 0, LAST_COLUMN
+};
+
 const char* kCsvDefaultSerparator = "\t, ";
 const char* kCsvDefaultComment = "#";
 
@@ -86,7 +90,7 @@ bool ReadCsv(std::istream& is, C* data, const std::string &separator =
 
 template<typename Labels, typename Inputs>
 bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
-    std::size_t label_column = 0, const std::string& separator =
+    LabelPosition label_pos = LAST_COLUMN, const std::string& separator =
         kCsvDefaultSerparator,
     const std::string &comment = kCsvDefaultComment) {
   typedef typename Labels::value_type Label;
@@ -101,28 +105,27 @@ bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
     if (line.empty() || (!comment.empty() && line.find(comment) == 0)) continue;
     algo::trim(line);
     algo::split(toks, line, algo::is_any_of(separator));
-    if (toks.size() < label_column) {
-      LOG(WARNING)<< "toks.size() < label_column. toks.size=" << toks.size()
+    if (toks.size() < 2) {
+      LOG(WARNING)<< "toks.size() is too small. toks.size=" << toks.size()
       << ", line=" << line;
       continue;
     }
     Label label;
     try {
-      label = boost::lexical_cast<Value>(toks[label_column]);
+      label = boost::lexical_cast<Value>(label_pos == FIRST_COLUMN ?
+          toks.front() : toks.back());
     } catch (const boost::bad_lexical_cast& e) {
     }
     Input input(toks.size() - 1, 0);
-    for (std::size_t i = 0; i < toks.size(); ++i) {
-      if (i == label_column) continue;
+    std::size_t begin = label_pos;
+    std::size_t end = toks.size() - (label_pos == FIRST_COLUMN);
+    for (std::size_t i = begin; i < end; ++i) {
       Value v;
       try {
         v = boost::lexical_cast<Value>(toks[i]);
       } catch (const boost::bad_lexical_cast& e) {
       }
-      if (i < label_column)
-        input(i) = v;
-      else
-        input(i - 1) = v;
+      input(i - begin) = v;
     }
     labels->push_back(label);
     inputs->push_back(input);
@@ -132,7 +135,7 @@ bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
 
 template<typename LabeledData>
 bool ReadCsv(const std::string& path, LabeledData* data,
-    std::size_t label_column = 0, const std::string& separator =
+    LabelPosition label_pos = LAST_COLUMN, const std::string& separator =
         kCsvDefaultSerparator,
     const std::string& comment = kCsvDefaultComment) {
   typedef typename LabeledData::Input Input;
@@ -140,7 +143,7 @@ bool ReadCsv(const std::string& path, LabeledData* data,
   std::vector<Label> labels;
   std::vector<Input> inputs;
   std::ifstream inf(path.c_str());
-  bool ret = ReadCsv(inf, &labels, &inputs, label_column, separator, comment);
+  bool ret = ReadCsv(inf, &labels, &inputs, label_pos, separator, comment);
   if (ret) {
     ToData(labels, data->labels());
     ToData(inputs, data->inputs());
