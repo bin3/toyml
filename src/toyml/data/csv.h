@@ -99,6 +99,7 @@ bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
 
   if (!is) return false;
 
+  bool first_column = (label_pos == FIRST_COLUMN);
   std::string line;
   std::vector<std::string> toks;
   while (std::getline(is, line)) {
@@ -112,13 +113,13 @@ bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
     }
     Label label;
     try {
-      label = boost::lexical_cast<Value>(label_pos == FIRST_COLUMN ?
+      label = boost::lexical_cast<Value>(first_column ?
           toks.front() : toks.back());
     } catch (const boost::bad_lexical_cast& e) {
     }
     Input input(toks.size() - 1, 0);
-    std::size_t begin = label_pos;
-    std::size_t end = toks.size() - (label_pos == FIRST_COLUMN);
+    std::size_t begin = first_column;
+    std::size_t end = toks.size() - (!first_column);
     for (std::size_t i = begin; i < end; ++i) {
       Value v;
       try {

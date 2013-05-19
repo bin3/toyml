@@ -25,12 +25,11 @@
 
 #include "csv.h"
 #include <gtest/gtest.h>
-//#include <glog/logging.h>
 
 namespace toyml {
 
 TEST(Csv, ReadCsv) {
-  ClassificationData data;
+  LabeledData<RealVector, uint32_t> data;
   EXPECT_EQ(0U, data.Size());
   EXPECT_FALSE(ReadCsv("null/null", &data));
   ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data, LAST_COLUMN));
@@ -40,10 +39,20 @@ TEST(Csv, ReadCsv) {
   Data<uint32_t> expected_labels;
   ToData(expected_labels_arr, kN, &expected_labels);
   EXPECT_EQ(expected_labels, data.labels());
-//  LOG(ERROR) << data.labels();
-//  LOG(ERROR) << data.inputs();
+  EXPECT_EQ(2U, data.input(0).size());
+  EXPECT_DOUBLE_EQ(2.4114, data.input(0)(0));
+  EXPECT_DOUBLE_EQ(-3.8901, data.input(0)(1));
+
   ASSERT_TRUE(ReadCsv("testdata/data/cls.csv", &data));
   EXPECT_EQ(1000U, data.Size());
+
+  LabeledData<RealVector, double> data2;
+  ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data2, FIRST_COLUMN));
+  EXPECT_EQ(10U, data2.Size());
+  EXPECT_DOUBLE_EQ(2.4114, data2.label(0));
+  EXPECT_EQ(2U, data2.input(0).size());
+  EXPECT_DOUBLE_EQ(-3.8901, data2.input(0)(0));
+  EXPECT_DOUBLE_EQ(0, data2.input(0)(1));
 }
 
 } /* namespace toyml */

@@ -6,4 +6,4 @@ if [ ! $? -eq 0 ]; then
 fi
 
 ./csv_test
-
+./perception_demo

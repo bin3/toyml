@@ -53,8 +53,9 @@ int main(int argc, char **argv) {
   toyml::Perception p;
   CHECK(p.Train(train)) << "Failed to train model.";
   toyml::Perception::Outputs outputs = p(test.inputs());
-  std::cout << "test: " << test.inputs() << std::endl;
-  std::cout << "outputs: " << outputs << std::endl;
+  VLOG(0) << "inputs: " << test.inputs();
+  VLOG(0) << "labels: " << test.labels();
+  VLOG(0) << "outputs: " << outputs;
 
   return 0;
 }
