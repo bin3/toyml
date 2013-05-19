@@ -20,27 +20,18 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-1-5
  */
 
-#include "perception.h"
+#include <iostream>
 #include <glog/logging.h>
+#include <gflags/gflags.h>
+#include <gtest/gtest.h>
 
-namespace toyml {
-
-Perception::Perception() {
+int main(int argc, char **argv) {
+  FLAGS_stderrthreshold = 0;
+  google::ParseCommandLineFlags(&argc, &argv, true);
+  google::InitGoogleLogging(argv[0]);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-
-Perception::~Perception() {
-}
-
-void Perception::Eval(const Input& input, Output* output) const {
-  *output = 1;
-}
-
-bool Perception::Train(const ClassificationData& data) {
-  VLOG(0) << "Train";
-  return true;
-}
-
-} /* namespace toyml */

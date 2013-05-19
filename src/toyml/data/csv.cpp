@@ -20,16 +20,11 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-19
  */
 
-#include "instance.h"
-#include <gtest/gtest.h>
+#include "csv.h"
 
 namespace toyml {
-
-TEST(Instance, Method) {
-
-}
 
 } /* namespace toyml */

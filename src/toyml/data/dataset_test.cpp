@@ -20,27 +20,16 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-17
  */
 
-#include "perception.h"
-#include <glog/logging.h>
+#include "dataset.h"
+#include <gtest/gtest.h>
 
 namespace toyml {
 
-Perception::Perception() {
-}
+TEST(Dataset, Method) {
 
-Perception::~Perception() {
-}
-
-void Perception::Eval(const Input& input, Output* output) const {
-  *output = 1;
-}
-
-bool Perception::Train(const ClassificationData& data) {
-  VLOG(0) << "Train";
-  return true;
 }
 
 } /* namespace toyml */

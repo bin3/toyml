@@ -37,6 +37,10 @@ class Perception: public Classifier {
 public:
   Perception();
   virtual ~Perception();
+
+  virtual void Eval(const Input& input, Output* output) const;
+  using Classifier::Eval;
+  virtual bool Train(const ClassificationData& data);
 };
 
 } /* namespace toyml */

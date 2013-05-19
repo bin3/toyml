@@ -20,37 +20,53 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-17
  */
 
-#ifndef CLASSIFIER_H_
-#define CLASSIFIER_H_
+#ifndef MODEL_H_
+#define MODEL_H_
 
-#include <vector>
+#include <string>
 
 #include <toyml/data/dataset.h>
-#include <toyml/model/model.h>
 
 namespace toyml {
 
 /**
  * @brief 
  */
-class Classifier: public Model<RealVector, uint32_t> {
+template<typename InputT, typename OutputT>
+class Model {
 public:
-  typedef ClassificationData::Input Input;
+  typedef InputT Input;
+  typedef OutputT Output;
+  typedef Data<InputT> Inputs;
+  typedef Data<OutputT> Outputs;
 
-  Classifier();
-  virtual ~Classifier();
+  virtual ~Model() {}
 
-  virtual bool Train(const ClassificationData& data) = 0;
-  std::size_t NumClasses() const;
-};
+  virtual void Eval(const Input& input, Output* output) const = 0;
+  virtual void Eval(const Inputs& inputs, Outputs* outputs) const {
+    outputs->resize(inputs.size());
+    Output output;
+    for (std::size_t i = 0; i < inputs.size(); ++i) {
+      Eval(inputs[i], &(*outputs)[i]);
+    }
+  }
+  Output operator()(const Input& input) const {
+    Output output;
+    Eval(input, &output);
+    return output;
+  }
+  Outputs operator()(const Inputs& inputs) const {
+    Outputs outputs;
+    Eval(inputs, &outputs);
+    return outputs;
+  }
 
-class OnlineClassifier: public Classifier {
-public:
-  virtual bool OnlineTrain(const Input& inst) = 0;
+  virtual bool Read(const std::string& path) { return false; }
+  virtual bool Write(const std::string& path) { return false; }
 };
 
 } /* namespace toyml */
-#endif /* CLASSIFIER_H_ */
+#endif /* MODEL_H_ */

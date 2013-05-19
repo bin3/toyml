@@ -1,6 +1,5 @@
 set(lib toyml_classifier)
 set(srcs
-  instance.cpp
   classifier.cpp
   perception.cpp
 )

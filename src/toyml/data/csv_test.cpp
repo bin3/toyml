@@ -20,27 +20,30 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-19
  */
 
-#include "perception.h"
-#include <glog/logging.h>
+#include "csv.h"
+#include <gtest/gtest.h>
+//#include <glog/logging.h>
 
 namespace toyml {
 
-Perception::Perception() {
-}
-
-Perception::~Perception() {
-}
-
-void Perception::Eval(const Input& input, Output* output) const {
-  *output = 1;
-}
-
-bool Perception::Train(const ClassificationData& data) {
-  VLOG(0) << "Train";
-  return true;
+TEST(Csv, ReadCsv) {
+  ClassificationData data;
+  EXPECT_EQ(0U, data.Size());
+  EXPECT_FALSE(ReadCsv("null/null", &data));
+  ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data, 2));
+  const std::size_t kN = 10;
+  EXPECT_EQ(kN, data.Size());
+  uint32_t expected_labels_arr[kN] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
+  Data<uint32_t> expected_labels;
+  ToData(expected_labels_arr, kN, &expected_labels);
+  EXPECT_EQ(expected_labels, data.labels());
+//  LOG(ERROR) << data.labels();
+//  LOG(ERROR) << data.inputs();
+  ASSERT_TRUE(ReadCsv("testdata/data/cls.csv", &data));
+  EXPECT_EQ(1000U, data.Size());
 }
 
 } /* namespace toyml */
