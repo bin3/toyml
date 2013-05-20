@@ -28,6 +28,7 @@
 
 #include <string>
 
+#include <toyml/common/inameable.h>
 #include <toyml/data/dataset.h>
 
 namespace toyml {
@@ -36,7 +37,7 @@ namespace toyml {
  * @brief 
  */
 template<typename InputT, typename OutputT>
-class Model {
+class Model: public INameable {
 public:
   typedef InputT Input;
   typedef OutputT Output;
@@ -44,6 +45,8 @@ public:
   typedef Data<OutputT> Outputs;
 
   virtual ~Model() {}
+
+  virtual std::string name() const { return "Model"; }
 
   virtual void Eval(const Input& input, Output* output) const = 0;
   virtual void Eval(const Inputs& inputs, Outputs* outputs) const {

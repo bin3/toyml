@@ -43,6 +43,8 @@ public:
   Classifier();
   virtual ~Classifier();
 
+  virtual std::string name() const { return "Classifier"; }
+
   virtual bool Train(const ClassificationData& data) = 0;
   std::size_t NumClasses() const;
 };

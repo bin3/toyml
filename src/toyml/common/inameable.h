@@ -20,30 +20,25 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-21
  */
 
-#ifndef PERCEPTION_H_
-#define PERCEPTION_H_
+#ifndef TOYML_COMMON_INAMEABLE_H_
+#define TOYML_COMMON_INAMEABLE_H_
 
-#include "classifier.h"
+#include <string>
 
 namespace toyml {
 
 /**
  * @brief 
  */
-class Perception: public Classifier {
+class INameable {
 public:
-  Perception();
-  virtual ~Perception();
+  virtual ~INameable() {}
 
-  virtual std::string name() const { return "Perception"; }
-
-  virtual void Eval(const Input& input, Output* output) const;
-  using Classifier::Eval;
-  virtual bool Train(const ClassificationData& data);
+  virtual std::string name() const { return "Unnamed"; }
 };
 
 } /* namespace toyml */
-#endif /* PERCEPTION_H_ */
+#endif /* TOYML_COMMON_INAMEABLE_H_ */

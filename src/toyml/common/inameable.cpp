@@ -20,30 +20,11 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-21
  */
 
-#ifndef PERCEPTION_H_
-#define PERCEPTION_H_
-
-#include "classifier.h"
+#include "inameable.h"
 
 namespace toyml {
 
-/**
- * @brief 
- */
-class Perception: public Classifier {
-public:
-  Perception();
-  virtual ~Perception();
-
-  virtual std::string name() const { return "Perception"; }
-
-  virtual void Eval(const Input& input, Output* output) const;
-  using Classifier::Eval;
-  virtual bool Train(const ClassificationData& data);
-};
-
 } /* namespace toyml */
-#endif /* PERCEPTION_H_ */

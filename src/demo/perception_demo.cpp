@@ -49,9 +49,9 @@ int main(int argc, char **argv) {
   CHECK(toyml::ReadCsv(FLAGS_trainpath, &train));
   CHECK(toyml::ReadCsv(FLAGS_testpath, &test));
 
-  toyml::Perception p;
-  CHECK(p.Train(train)) << "Failed to train model.";
-  toyml::Perception::Outputs outputs = p(test.inputs());
+  toyml::Perception m;
+  CHECK(m.Train(train)) << "Failed to train " << m.name() << " model.";
+  toyml::Perception::Outputs outputs = m(test.inputs());
   VLOG(0) << "inputs: " << test.inputs();
   VLOG(0) << "labels: " << test.labels();
   VLOG(0) << "outputs: " << outputs;
