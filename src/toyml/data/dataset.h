@@ -31,9 +31,12 @@
 #include <sstream>
 #include <string>
 #include <deque>
+#include <algorithm>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+
+#include "util.h"
 
 namespace toyml {
 
@@ -52,7 +55,13 @@ public:
 
 template<typename T>
 class UnlabeledData : public Data<T> {
+public:
+  virtual ~UnlabeledData() {}
 
+  std::size_t dimension() const {
+    if (this->size() == 0) return 0;
+    return (*this)(0).size();
+  }
 };
 
 template<typename InputT, typename LabelT>
@@ -65,13 +74,21 @@ public:
 
   virtual ~LabeledData() {}
 
+  template<typename InputC, typename LabelC>
+  bool Init(const InputC& ins, const LabelC& lbls) {
+    if (ins.size() != lbls.size()) return false;
+    ToData(ins, &inputs_);
+    ToData(lbls, &labels_);
+    return true;
+  }
   const Labels& labels() const { return labels_; }
   Labels& labels() { return labels_; }
   const Inputs& inputs() const { return inputs_; }
   Inputs& inputs() { return inputs_; }
   Label& label(std::size_t i) { return labels_[i]; }
   Input& input(std::size_t i) { return inputs_[i]; }
-  std::size_t Size() const { return labels_.size(); }
+  std::size_t size() const { return labels_.size(); }
+  std::size_t dimension() const { return inputs_.dimension(); }
 
   virtual bool Read(const std::string& path) {
     std::ifstream inf(path.c_str());
@@ -83,13 +100,38 @@ public:
     return true;
   }
   virtual bool Write(const std::string& path) { return false; }
-private:
+protected:
   Inputs inputs_;
   Labels labels_;
 };
 
-typedef LabeledData<RealVector, uint32_t> ClassificationData;
 typedef LabeledData<RealVector, RealVector> RegressionData;
+
+class ClassificationData: public LabeledData<RealVector, uint32_t> {
+public:
+  typedef LabeledData<RealVector, uint32_t> base_type;
+
+  template<typename InputC, typename LabelC>
+  bool Init(const InputC& ins, const LabelC& lbls) {
+    bool ret = base_type::Init(ins, lbls);
+    if (ret) {
+      num_classes_ = CalcNumClasses(labels_);
+    }
+    return ret;
+  }
+
+  std::size_t num_classes() const { return num_classes_; }
+protected:
+  std::size_t num_classes_;
+
+  std::size_t CalcNumClasses(const Labels& lbls) {
+    uint32_t n = 0;
+    for (std::size_t i = 0; i < lbls.size(); ++i) {
+      n = std::max(n, lbls(i));
+    }
+    return n + 1;
+  }
+};
 
 template<typename T>
 bool operator==(const Data<T>& a, const Data<T>& b) {

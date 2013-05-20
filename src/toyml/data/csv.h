@@ -32,6 +32,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "util.h"
 #include "dataset.h"
 
 namespace toyml {
@@ -44,23 +45,6 @@ enum LabelPosition {
 
 const char* kCsvDefaultSerparator = "\t, ";
 const char* kCsvDefaultComment = "#";
-
-template<typename C, typename T>
-void ToData(const C& c, Data<T>* data) {
-  data->resize(c.size());
-  std::copy(c.begin(), c.end(), data->begin());
-}
-
-template<typename C, typename T>
-void ToData(const C& c, Data<T>& data) {
-  ToData(c, &data);
-}
-
-template<typename T>
-void ToData(const T* p, std::size_t n, Data<T>* data) {
-  data->resize(n);
-  std::copy(p, p + n, data->begin());
-}
 
 template<typename C>
 bool ReadCsv(std::istream& is, C* data, const std::string &separator =
@@ -89,7 +73,7 @@ bool ReadCsv(std::istream& is, C* data, const std::string &separator =
 }
 
 template<typename Labels, typename Inputs>
-bool ReadCsv(std::istream& is, Labels* labels, Inputs* inputs,
+bool ReadCsv(std::istream& is, Inputs* inputs, Labels* labels,
     LabelPosition label_pos = LAST_COLUMN, const std::string& separator =
         kCsvDefaultSerparator,
     const std::string &comment = kCsvDefaultComment) {
@@ -141,13 +125,12 @@ bool ReadCsv(const std::string& path, LabeledData* data,
     const std::string& comment = kCsvDefaultComment) {
   typedef typename LabeledData::Input Input;
   typedef typename LabeledData::Label Label;
-  std::vector<Label> labels;
   std::vector<Input> inputs;
+  std::vector<Label> labels;
   std::ifstream inf(path.c_str());
-  bool ret = ReadCsv(inf, &labels, &inputs, label_pos, separator, comment);
+  bool ret = ReadCsv(inf, &inputs, &labels, label_pos, separator, comment);
   if (ret) {
-    ToData(labels, data->labels());
-    ToData(inputs, data->inputs());
+    ret = data->Init(inputs, labels);
   }
   return ret;
 }

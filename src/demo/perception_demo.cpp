@@ -45,8 +45,6 @@ int main(int argc, char **argv) {
 
   toyml::ClassificationData train;
   toyml::ClassificationData test;
-//  CHECK(train.Read(FLAGS_trainpath));
-//  CHECK(test.Read(FLAGS_testpath));
   CHECK(toyml::ReadCsv(FLAGS_trainpath, &train));
   CHECK(toyml::ReadCsv(FLAGS_testpath, &test));
 

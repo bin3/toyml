@@ -30,11 +30,11 @@ namespace toyml {
 
 TEST(Csv, ReadCsv) {
   LabeledData<RealVector, uint32_t> data;
-  EXPECT_EQ(0U, data.Size());
+  EXPECT_EQ(0U, data.size());
   EXPECT_FALSE(ReadCsv("null/null", &data));
   ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data, LAST_COLUMN));
   const std::size_t kN = 10;
-  EXPECT_EQ(kN, data.Size());
+  EXPECT_EQ(kN, data.size());
   uint32_t expected_labels_arr[kN] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
   Data<uint32_t> expected_labels;
   ToData(expected_labels_arr, kN, &expected_labels);
@@ -44,11 +44,11 @@ TEST(Csv, ReadCsv) {
   EXPECT_DOUBLE_EQ(-3.8901, data.input(0)(1));
 
   ASSERT_TRUE(ReadCsv("testdata/data/cls.csv", &data));
-  EXPECT_EQ(1000U, data.Size());
+  EXPECT_EQ(1000U, data.size());
 
   LabeledData<RealVector, double> data2;
   ASSERT_TRUE(ReadCsv("testdata/data/cls.10.csv", &data2, FIRST_COLUMN));
-  EXPECT_EQ(10U, data2.Size());
+  EXPECT_EQ(10U, data2.size());
   EXPECT_DOUBLE_EQ(2.4114, data2.label(0));
   EXPECT_EQ(2U, data2.input(0).size());
   EXPECT_DOUBLE_EQ(-3.8901, data2.input(0)(0));
