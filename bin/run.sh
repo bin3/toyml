@@ -5,5 +5,8 @@ if [ ! $? -eq 0 ]; then
   exit 1
 fi
 
-./csv_test
+for test in `ls *_test`; do
+  ./$test
+done
+
 ./perception_demo

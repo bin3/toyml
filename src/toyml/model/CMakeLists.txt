@@ -1,0 +1,1 @@
+add_test(confusion_matrix_test)

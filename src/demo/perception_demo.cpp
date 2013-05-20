@@ -28,6 +28,7 @@
 #include <gflags/gflags.h>
 
 #include <toyml/data/csv.h>
+#include <toyml/model/confusion_matrix.h>
 #include <toyml/classifier/perception.h>
 
 DEFINE_string(trainpath, "data/classifier/train.csv", "the training data file");
@@ -54,6 +55,10 @@ int main(int argc, char **argv) {
   VLOG(0) << "inputs: " << test.inputs();
   VLOG(0) << "labels: " << test.labels();
   VLOG(0) << "outputs: " << outputs;
+
+  toyml::ConfusionMatrix cm;
+  CHECK(cm.Init(test.labels(), outputs));
+  VLOG(0) << "Results: " << cm.ToString();
 
   return 0;
 }
