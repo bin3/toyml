@@ -29,7 +29,7 @@
 
 #include <toyml/data/csv.h>
 #include <toyml/model/confusion_matrix.h>
-#include <toyml/classifier/perception.h>
+#include <toyml/classifier/perceptron.h>
 
 DEFINE_string(trainpath, "data/classifier/train.csv", "the training data file");
 DEFINE_string(testpath, "data/classifier/test.csv", "the test data file");
@@ -48,17 +48,22 @@ int main(int argc, char **argv) {
   toyml::ClassificationData test;
   CHECK(toyml::ReadCsv(FLAGS_trainpath, &train));
   CHECK(toyml::ReadCsv(FLAGS_testpath, &test));
+  VLOG(0) << "Training data: " << train.ToString();
+  VLOG(0) << "Test data: " << test.ToString();
 
-  toyml::Perception m;
+  toyml::Perceptron::Options options;
+  options.niters = 100;
+  toyml::Perceptron m;
+  CHECK(m.Init(options));
   CHECK(m.Train(train)) << "Failed to train " << m.name() << " model.";
-  toyml::Perception::Outputs outputs = m(test.inputs());
-  VLOG(0) << "inputs: " << test.inputs();
-  VLOG(0) << "labels: " << test.labels();
-  VLOG(0) << "outputs: " << outputs;
+  toyml::Perceptron::Outputs outputs = m(test.inputs());
+//  VLOG(0) << "inputs: " << test.inputs();
+//  VLOG(0) << "labels: " << test.labels();
+//  VLOG(0) << "outputs: " << outputs;
 
   toyml::ConfusionMatrix cm;
   CHECK(cm.Init(test.labels(), outputs));
-  VLOG(0) << "Results: " << cm.ToString();
+  VLOG(0) << "Evaluation: " << cm.ToString();
 
   return 0;
 }

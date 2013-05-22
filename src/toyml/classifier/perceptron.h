@@ -20,11 +20,11 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-21
  */
 
-#ifndef PERCEPTION_H_
-#define PERCEPTION_H_
+#ifndef PERCEPTRON_H_
+#define PERCEPTRON_H_
 
 #include "classifier.h"
 
@@ -33,17 +33,34 @@ namespace toyml {
 /**
  * @brief 
  */
-class Perception: public Classifier {
+class Perceptron: public Classifier {
 public:
-  Perception();
-  virtual ~Perception();
+  struct Options {
+    Options(): niters(100), learning_rate(0.01) {}
+    std::size_t niters;
+    double learning_rate;
+  };
 
-  virtual std::string name() const { return "Perception"; }
+  Perceptron();
+  virtual ~Perceptron();
+
+  bool Init(const Options& options) {
+    opts_ = options;
+    return true;
+  }
+  virtual std::string name() const { return "Perceptron"; }
 
   virtual void Eval(const Input& input, Output* output) const;
   using Classifier::Eval;
   virtual bool Train(const ClassificationData& data);
-};
+private:
+  Options opts_;
+  RealVector w_;
+  double b_;
 
+  static int Sign(double x) {
+    return x >= 0 ? 1 : -1;
+  }
+};
 } /* namespace toyml */
-#endif /* PERCEPTION_H_ */
+#endif /* PERCEPTRON_H_ */

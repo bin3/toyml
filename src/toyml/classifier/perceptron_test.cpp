@@ -20,15 +20,15 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-8
+ * @date		2013-5-21
  */
 
-#include "perception.h"
+#include "perceptron.h"
 #include <gtest/gtest.h>
 
 namespace toyml {
 
-TEST(Perception, Method) {
+TEST(Perceptron, Method) {
 
 }
 

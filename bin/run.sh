@@ -9,4 +9,4 @@ for test in `ls *_test`; do
   ./$test
 done
 
-./perception_demo
+./perceptron_demo

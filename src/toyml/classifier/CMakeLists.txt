@@ -1,7 +1,7 @@
 set(lib toyml_classifier)
 set(srcs
   classifier.cpp
-  perception.cpp
+  perceptron.cpp
 )
 
 add_library(${lib} ${srcs})

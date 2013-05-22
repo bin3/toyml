@@ -32,6 +32,7 @@
 #include <string>
 #include <deque>
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -62,6 +63,13 @@ public:
     if (this->size() == 0) return 0;
     return (*this)(0).size();
   }
+  std::size_t num_instances() const { return this->size(); }
+
+  virtual std::string ToString() const {
+    std::stringstream ss;
+    ss << "dimension=" << dimension() << ", instances=" << num_instances();
+    return ss.str();
+  }
 };
 
 template<typename InputT, typename LabelT>
@@ -86,9 +94,12 @@ public:
   const Inputs& inputs() const { return inputs_; }
   Inputs& inputs() { return inputs_; }
   Label& label(std::size_t i) { return labels_[i]; }
+  const Label& label(std::size_t i) const { return labels_[i]; }
   Input& input(std::size_t i) { return inputs_[i]; }
+  const Input& input(std::size_t i) const { return inputs_[i]; }
   std::size_t size() const { return labels_.size(); }
   std::size_t dimension() const { return inputs_.dimension(); }
+  std::size_t num_instances() const { return inputs_.size(); }
 
   virtual bool Read(const std::string& path) {
     std::ifstream inf(path.c_str());
@@ -100,6 +111,9 @@ public:
     return true;
   }
   virtual bool Write(const std::string& path) { return false; }
+  virtual std::string ToString() const {
+    return inputs_.ToString();
+  }
 protected:
   Inputs inputs_;
   Labels labels_;
@@ -121,6 +135,11 @@ public:
   }
 
   std::size_t num_classes() const { return num_classes_; }
+
+  virtual std::string ToString() const {
+    return base_type::ToString() + ", classes=" +
+        boost::lexical_cast<std::string>(num_classes());
+  }
 protected:
   std::size_t num_classes_;
 

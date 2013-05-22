@@ -1,1 +1,1 @@
-add_bin(perception_demo 'toyml_classifier')
+add_bin(perceptron_demo 'toyml_classifier')
