@@ -20,7 +20,7 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-19
+ * @date		2013-5-23
  */
 
 #include <iostream>
@@ -28,8 +28,9 @@
 #include <gflags/gflags.h>
 
 #include <toyml/data/csv.h>
+#include <toyml/data/data_transformer.h>
 #include <toyml/model/confusion_matrix.h>
-#include <toyml/classifier/perceptron.h>
+#include <toyml/dl/sigmoid_layer.h>
 
 DEFINE_string(trainpath, "data/classifier/train.csv", "the training data file");
 DEFINE_string(testpath, "data/classifier/test.csv", "the test data file");
@@ -51,16 +52,27 @@ int main(int argc, char **argv) {
   VLOG(0) << "Training data: " << train.ToString();
   VLOG(0) << "Test data: " << test.ToString();
 
-  toyml::Perceptron::Options options;
-  options.niters = 100;
-  toyml::Perceptron m;
-  CHECK(m.Init(options));
-  CHECK(m.Train(train)) << "Failed to train " << m.name() << " model.";
-  toyml::Perceptron::Outputs outputs = m(test.inputs());
+  toyml::NNetData nntrain;
+  toyml::DataTransformer::Transform(train, &nntrain);
+  VLOG(0) << "Training NNetData: " << nntrain.ToString();
+
+  toyml::dl::SigmoidLayer::Options options;
+  options.in = train.dimension();
+  options.out = train.num_classes();
+  options.max_iterations = 100;
+  toyml::dl::SigmoidLayer layer;
+  CHECK(layer.Init(options));
+  VLOG(0) << "SigmoidLayer before training: " << layer.ToString();
+  CHECK(layer.Train(nntrain)) << "Failed to train " << layer.name() << " model.";
+  VLOG(0) << "SigmoidLayer after training: " << layer.ToString();
+
+  toyml::ClassificationData::Outputs outputs;
+  layer.Predict(test.inputs(), &outputs);
 
   toyml::ConfusionMatrix cm;
   CHECK(cm.Init(test.labels(), outputs));
   VLOG(0) << "Evaluation: " << cm.ToString();
+
 
   return 0;
 }

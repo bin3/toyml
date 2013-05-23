@@ -10,3 +10,4 @@ for test in `ls *_test`; do
 done
 
 ./perceptron_demo
+./sigmoid_layer_demo 

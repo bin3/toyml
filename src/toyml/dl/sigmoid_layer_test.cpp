@@ -20,47 +20,18 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
-
-#include "classifier.h"
+#include "sigmoid_layer.h"
+#include <gtest/gtest.h>
 
 namespace toyml {
+namespace dl {
 
-/**
- * @brief 
- */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+TEST(SigmoidLayer, Method) {
 
-  Perceptron();
-  virtual ~Perceptron();
+}
 
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
-
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
-};
+} /* namespace dl */
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */

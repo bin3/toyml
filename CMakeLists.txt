@@ -65,7 +65,7 @@ find_package(Boost REQUIRED)
 find_package(Boost 1.45.0 COMPONENTS thread system date_time)
 message(STATUS "Boost_LIBRARIES=${Boost_LIBRARIES}")
 
-set(toyml_libs toyml_tm)
+set(toyml_libs toyml_data toyml_tm toyml_dl)
 set(basic_libs ${toyml_libs} ${Boost_LIBRARIES} glog gflags)
 message(STATUS "basic_libs=${basic_libs}")
 include(common)

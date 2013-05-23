@@ -20,47 +20,34 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
-
-#include "classifier.h"
+#ifndef TOYML_DL_NEURON_H_
+#define TOYML_DL_NEURON_H_
 
 namespace toyml {
+namespace dl {
 
 /**
- * @brief 
+ * @brief A neuron in neural networks
  */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+class Neuron {
+ public:
+  Neuron();
+  virtual ~Neuron();
 
-  Perceptron();
-  virtual ~Perceptron();
+  double input() const { return input_; }
+  double output() const { return output_; }
 
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
-
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
+  virtual void UpdateInput();
+  virtual void UpdateOutput();
+  virtual void UpdateWeight();
+ private:
+  double input_;
+  double output_;
 };
+
+} /* namespace dl */
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+#endif /* TOYML_DL_NEURON_H_ */

@@ -20,47 +20,28 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
+#include <iostream>
 
-#include "classifier.h"
+/*
+2013-5-23
+$
+test
+/Users/heihate/work/cpp-code/toyml/src/toyml/dl/test.cpp
+test.cpp
+/toyml/src/toyml/dl/test.cpp
 
-namespace toyml {
+toyml
+上午11:24:26
 
-/**
- * @brief 
- */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+heihate
+2013
+*/
 
-  Perceptron();
-  virtual ~Perceptron();
-
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
-
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
-};
-} /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+int main(int argc, char **argv) {
+	std::cout << "------" << argv[0] << "------" << std::endl;
+	
+  return 0;
+}

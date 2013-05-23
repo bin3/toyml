@@ -20,47 +20,25 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
+#ifndef TOYML_COMMON_COMMON_H_
+#define TOYML_COMMON_COMMON_H_
 
-#include "classifier.h"
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
 namespace toyml {
 
-/**
- * @brief 
- */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+namespace ublas = boost::numeric::ublas;
 
-  Perceptron();
-  virtual ~Perceptron();
+typedef ublas::vector<double> RealVector;
+typedef ublas::matrix<double> RealMatrix;
 
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
+}  // namespace toyml
 
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
 
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
-};
-} /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+#endif /* TOYML_COMMON_COMMON_H_ */

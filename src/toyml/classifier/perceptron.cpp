@@ -26,7 +26,7 @@
 #include "perceptron.h"
 #include <glog/logging.h>
 
-#include <toyml/data/util.h>
+#include <toyml/util/util.h>
 
 namespace toyml {
 
@@ -36,7 +36,7 @@ Perceptron::Perceptron(): b_(0) {
 Perceptron::~Perceptron() {
 }
 
-void Perceptron::Eval(const Input& input, Output* output) const {
+void Perceptron::Predict(const Input& input, Output* output) const {
   if (input.size() != w_.size()) {
     // TODO
     LOG(WARNING) << "input.size() != w_.size(). input.size=" << input.size()
@@ -52,7 +52,7 @@ void Perceptron::Eval(const Input& input, Output* output) const {
 }
 
 bool Perceptron::Train(const ClassificationData& data) {
-  VLOG(0) << "Train";
+  VLOG(1) << "Train";
   RealVector(data.dimension(), 0).swap(w_);
   b_ = 0;
   for (std::size_t iter = 0; iter < opts_.niters; ++iter) {
@@ -69,7 +69,7 @@ bool Perceptron::Train(const ClassificationData& data) {
 //        VLOG_EVERY_N(0, 500) << NVC_(y) << NV_(sy);
       }
     }
-    VLOG(0) << "iter#" << iter << ": " << NVC_(err_cnt) << NVC_(w_) << NV_(b_);
+    VLOG(2) << "iter#" << iter << ": " << NVC_(err_cnt) << NVC_(w_) << NV_(b_);
     if (err_cnt == 0) break;
   }
   return true;

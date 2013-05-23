@@ -20,47 +20,31 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
+#ifndef TOYML_DL_SIGMOID_LAYER_H_
+#define TOYML_DL_SIGMOID_LAYER_H_
 
-#include "classifier.h"
+#include "toyml/dl/layer.h"
 
 namespace toyml {
+namespace dl {
 
 /**
- * @brief 
+ * @brief A layer using sigmoid as neuron function, also called Logistic Regression
  */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+class SigmoidLayer : public Layer {
+ public:
+  SigmoidLayer();
+  virtual ~SigmoidLayer();
 
-  Perceptron();
-  virtual ~Perceptron();
-
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
-
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
+  using Layer::Train;
+  virtual void Train(const Input& x, const Output& y);
+  using Layer::Predict;
+  virtual void Predict(const Input& x, Output* y) const;
 };
+
+} /* namespace dl */
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+#endif /* TOYML_DL_SIGMOID_LAYER_H_ */

@@ -20,47 +20,40 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
+#ifndef TOYML_UTIL_UTIL_H_
+#define TOYML_UTIL_UTIL_H_
 
-#include "classifier.h"
+#include <algorithm>
+
+#include <toyml/common/common.h>
 
 namespace toyml {
+
+#define NAME_VAL(v) #v << "=" << v
+#define NAME_VAL_COMMA(v) #v << "=" << v << ", "
+#define NV_ NAME_VAL
+#define NVC_ NAME_VAL_COMMA
 
 /**
  * @brief 
  */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
-
-  Perceptron();
-  virtual ~Perceptron();
-
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
-
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
+class Util {
+ public:
+  static void Softmax(RealVector& x) {
+    double max = *std::max_element(x.begin(), x.end());
+    double sum = 0;
+    for (std::size_t i = 0; i < x.size(); ++i) {
+      x(i) = exp(x(i) - max);
+      sum += x(i);
+    }
+    for (std::size_t i = 0; i < x.size(); ++i) {
+      x(i) /= sum;
+    }
   }
 };
+
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+#endif /* TOYML_UTIL_UTIL_H_ */

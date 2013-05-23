@@ -20,47 +20,39 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
+#ifndef TOYML_DL_NEURAL_NETWORK_H_
+#define TOYML_DL_NEURAL_NETWORK_H_
 
-#include "classifier.h"
+#include <vector>
+
+#include "toyml/dl/layer.h"
 
 namespace toyml {
+namespace dl {
 
 /**
  * @brief 
  */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+class NeuralNetwork {
+ public:
+  typedef std::vector<Layer*> Layers;
 
-  Perceptron();
-  virtual ~Perceptron();
+  NeuralNetwork();
+  virtual ~NeuralNetwork();
 
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
-  }
-  virtual std::string name() const { return "Perceptron"; }
+  Layers& layers() { return layers_; }
+  Layer* layer(std::size_t i) { return layers_[i]; }
+  Layer* input_layer() { return layers_.front(); }
+  Layer* output_layer() { return layers_.back(); }
 
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
-  }
+  std::size_t NumLayers() const { return layers_.size(); }
+ private:
+  Layers layers_;
 };
+
+} /* namespace dl */
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */
+#endif /* TOYML_DL_NEURAL_NETWORK_H_ */

@@ -48,22 +48,22 @@ public:
 
   virtual std::string name() const { return "Model"; }
 
-  virtual void Eval(const Input& input, Output* output) const = 0;
-  virtual void Eval(const Inputs& inputs, Outputs* outputs) const {
+  virtual void Predict(const Input& input, Output* output) const = 0;
+  virtual void Predict(const Inputs& inputs, Outputs* outputs) const {
     outputs->resize(inputs.size());
     Output output;
     for (std::size_t i = 0; i < inputs.size(); ++i) {
-      Eval(inputs[i], &(*outputs)[i]);
+      Predict(inputs[i], &(*outputs)[i]);
     }
   }
   Output operator()(const Input& input) const {
     Output output;
-    Eval(input, &output);
+    Predict(input, &output);
     return output;
   }
   Outputs operator()(const Inputs& inputs) const {
     Outputs outputs;
-    Eval(inputs, &outputs);
+    Predict(inputs, &outputs);
     return outputs;
   }
 

@@ -20,47 +20,44 @@
 
 /**
  * @author	Binson Zhang <bin183cs@gmail.com>
- * @date		2013-5-21
+ * @date		2013-5-23
  */
 
-#ifndef PERCEPTRON_H_
-#define PERCEPTRON_H_
-
-#include "classifier.h"
+#include "sigmoid_layer.h"
+#include <glog/logging.h>
+#include <toyml/common/common.h>
+#include <toyml/util/util.h>
 
 namespace toyml {
+namespace dl {
 
-/**
- * @brief 
- */
-class Perceptron: public Classifier {
-public:
-  struct Options {
-    Options(): niters(100), learning_rate(0.01) {}
-    std::size_t niters;
-    double learning_rate;
-  };
+SigmoidLayer::SigmoidLayer() {
+}
 
-  Perceptron();
-  virtual ~Perceptron();
+SigmoidLayer::~SigmoidLayer() {
+}
 
-  bool Init(const Options& options) {
-    opts_ = options;
-    return true;
+void SigmoidLayer::Train(const Input& x, const Output& y) {
+  Output out;
+  Predict(x, &out);
+
+  for (std::size_t i = 0; i < options_.out; ++i) {
+    double dy = y(i) - out(i);
+    for (std::size_t j = 0; j < options_.in; ++j) {
+      w_(i, j) += dy * x(j) * options_.learning_rate;
+    }
+    b_(i) += dy * options_.learning_rate;
   }
-  virtual std::string name() const { return "Perceptron"; }
+}
 
-  virtual void Predict(const Input& input, Output* output) const;
-  using Classifier::Predict;
-  virtual bool Train(const ClassificationData& data);
-private:
-  Options opts_;
-  RealVector w_;
-  double b_;
-
-  static int Sign(double x) {
-    return x >= 0 ? 1 : -1;
+void SigmoidLayer::Predict(const Input& x, Output* y) const {
+  y->resize(options_.out);
+  for (std::size_t i = 0; i < options_.out; ++i) {
+    ublas::matrix_row<const RealMatrix> wi(w_, i);
+    (*y)(i) = ublas::inner_prod(wi, x) + b_(i);
   }
-};
+  Util::Softmax(*y);
+}
+
+} /* namespace dl */
 } /* namespace toyml */
-#endif /* PERCEPTRON_H_ */

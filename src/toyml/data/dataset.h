@@ -37,13 +37,12 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
-#include "util.h"
+#include <toyml/common/common.h>
+#include <toyml/data/util.h>
 
 namespace toyml {
 
 namespace ublas = boost::numeric::ublas;
-
-typedef ublas::vector<double> RealVector;
 
 template<typename T>
 class Data: public ublas::vector<T> {
@@ -77,8 +76,10 @@ class LabeledData {
 public:
   typedef InputT Input;
   typedef LabelT Label;
+  typedef LabelT Output;
   typedef UnlabeledData<InputT> Inputs;
   typedef Data<LabelT> Labels;
+  typedef Data<LabelT> Outputs;
 
   virtual ~LabeledData() {}
 
@@ -120,6 +121,7 @@ protected:
 };
 
 typedef LabeledData<RealVector, RealVector> RegressionData;
+typedef LabeledData<RealVector, RealVector> NNetData;
 
 class ClassificationData: public LabeledData<RealVector, uint32_t> {
 public:
